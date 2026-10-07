@@ -105,7 +105,7 @@
 
   <!-- Legacy sources retained in the working tree but removed from this application's build. -->
   <ItemGroup>
-    <Compile Remove="MainWindow.Whisper.cs;whisper.cs;whisper.audio.cs;AudioPlayer.xaml.cs;ConvertWavFile.xaml.cs;RecordingTool.xaml.cs;SpeechSynthesis.cs;SpeechSynthesisTool.xaml.cs" />
+    <Compile Remove="AudioPlayer.xaml.cs;ConvertWavFile.xaml.cs;RecordingTool.xaml.cs;SpeechSynthesis.cs;SpeechSynthesisTool.xaml.cs" />
     <Page Remove="AudioPlayer.xaml;ConvertWavFile.xaml;RecordingTool.xaml;SpeechSynthesisTool.xaml" />
   </ItemGroup>
 
