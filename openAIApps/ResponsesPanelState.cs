@@ -72,13 +72,6 @@ namespace openAiAppsAvalonia
             }
         }
 
-        private bool _useComputerUse;
-        public bool UseComputerUse
-        {
-            get => _useComputerUse;
-            set => SetProperty(ref _useComputerUse, value);
-        }
-
         private string _searchContextSize = "medium";
         public string SearchContextSize
         {

@@ -105,8 +105,7 @@ namespace openAiAppsAvalonia
                 "o3",
                 "o3-pro",
                 "o3-mini",
-                "o4-mini",
-                "computer-use-preview"
+                "o4-mini"
             };
         }
         private async Task LoadApiModelsCacheAsync()
@@ -155,7 +154,6 @@ namespace openAiAppsAvalonia
             ResponsesState.SelectedReasoning = "none";
             ResponsesState.UseTextTool = true;
             ResponsesState.UseWebSearch = false;
-            ResponsesState.UseComputerUse = false;
             ResponsesState.UseImageGeneration = false;
             ResponsesState.SearchContextSize = "medium";
             ResponsesState.ImageGenQuality = "auto";
@@ -1036,15 +1034,8 @@ namespace openAiAppsAvalonia
             _isApplyingResponsesSettings = true;
             try
             {
-                if (ResponsesState.UseComputerUse)
-                {
-                    ResponsesState.UseWebSearch = false;
-                    ResponsesState.UseImageGeneration = false;
-                }
-
                 bool anyNonText =
                     ResponsesState.UseWebSearch ||
-                    ResponsesState.UseComputerUse ||
                     ResponsesState.UseImageGeneration;
 
                 if (ResponsesState.UseTextTool && anyNonText)
@@ -1060,7 +1051,6 @@ namespace openAiAppsAvalonia
                 if (ResponsesState.UseTextTool)
                 {
                     ResponsesState.UseWebSearch = false;
-                    ResponsesState.UseComputerUse = false;
                     ResponsesState.UseImageGeneration = false;
                 }
             }
@@ -1090,9 +1080,6 @@ namespace openAiAppsAvalonia
 
             if (ResponsesState.UseWebSearch)
                 _responsesClient.ActiveTools.Add(ResponseToolKeys.WebSearch);
-
-            if (ResponsesState.UseComputerUse)
-                _responsesClient.ActiveTools.Add(ResponseToolKeys.ComputerUsePreview);
 
             if (ResponsesState.UseImageGeneration)
                 _responsesClient.ActiveTools.Add(ResponseToolKeys.ImageGeneration);
@@ -1362,7 +1349,6 @@ namespace openAiAppsAvalonia
 
             ResponsesState.UseTextTool = tools.Contains(ResponseToolKeys.Text);
             ResponsesState.UseWebSearch = tools.Contains(ResponseToolKeys.WebSearch);
-            ResponsesState.UseComputerUse = tools.Contains(ResponseToolKeys.ComputerUsePreview);
             ResponsesState.UseImageGeneration = tools.Contains(ResponseToolKeys.ImageGeneration);
         }
         private void ValidateImageGenerationSettings()

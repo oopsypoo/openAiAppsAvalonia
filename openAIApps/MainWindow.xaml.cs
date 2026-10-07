@@ -210,7 +210,6 @@ namespace openAiAppsAvalonia
                 case nameof(ResponsesPanelState.ImageGenBackground):
                 case nameof(ResponsesPanelState.UseTextTool):
                 case nameof(ResponsesPanelState.UseWebSearch):
-                case nameof(ResponsesPanelState.UseComputerUse):
                 case nameof(ResponsesPanelState.UseImageGeneration):
                     ValidateResponsesState();
                     NormalizeResponsesToolsState();

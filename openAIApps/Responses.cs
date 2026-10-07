@@ -911,16 +911,6 @@ namespace openAiAppsAvalonia
                 });
             }
 
-            if (ActiveTools.Contains(ResponseToolKeys.ComputerUsePreview))
-            {
-                tools.Add(new ComputerUseTool
-                {
-                    DisplayWidth = 3440,
-                    DisplayHeight = 1440,
-                    Environment = "windows"
-                });
-            }
-
             if (ActiveTools.Contains(ResponseToolKeys.ImageGeneration))
             {
                 int? compression = null;
@@ -991,7 +981,6 @@ namespace openAiAppsAvalonia
             {
                 "web_search" => $"Web search would execute: {inputText}",
                 "reasoning" => $"Reasoning step executed with input: {inputText}",
-                "computer_use_preview" => "Computer use action simulated (requires access)",
                 _ => $"Tool execution simulated: {inputText}"
             };
         }
@@ -1042,23 +1031,6 @@ namespace openAiAppsAvalonia
             {
                 Type = "reasoning";
             }
-        }
-
-        private class ComputerUseTool : Tool
-        {
-            public ComputerUseTool()
-            {
-                Type = "computer_use_preview";
-            }
-
-            [JsonPropertyName("display_width")]
-            public int DisplayWidth { get; set; } = 3440;
-
-            [JsonPropertyName("display_height")]
-            public int DisplayHeight { get; set; } = 1440;
-
-            [JsonPropertyName("environment")]
-            public string Environment { get; set; } = "windows";
         }
 
         private class ImageGenerationTool : Tool

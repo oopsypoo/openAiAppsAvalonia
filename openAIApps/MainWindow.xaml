@@ -922,11 +922,6 @@
                                             </Grid>
                                         </Grid>
                                     </Border>
-                                    <CheckBox Grid.Row="3"
-                                              x:Name="cbToolComputerUse"
-                                              Visibility="Collapsed"
-                                              Content="Computer use (preview)"
-                                              IsChecked="{Binding ResponsesState.UseComputerUse, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}" />
                                 </Grid>
 
                                 <!-- Actions -->
