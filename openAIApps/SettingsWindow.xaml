@@ -31,13 +31,7 @@
                 <Button Content="Browse" Width="80" Margin="10,0,0,0" Click="BrowseLogs_Click" VerticalAlignment="Center"/>
             </StackPanel>
 
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                <Label Content="Sounds Folder:" Width="100" VerticalAlignment="Center"/>
-                <TextBox x:Name="SoundsTextBox" Width="300"
-                     Text="{Binding SoundsFolder, UpdateSourceTrigger=PropertyChanged}"
-                     VerticalAlignment="Center"/>
-                <Button Content="Browse" Width="80" Margin="10,0,0,0" Click="BrowseSounds_Click" VerticalAlignment="Center"/>
-            </StackPanel>
+            
 
             <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                 <Label Content="Images Folder:" Width="100" VerticalAlignment="Center"/>
@@ -47,13 +41,7 @@
                 <Button Content="Browse" Width="80" Margin="10,0,0,0" Click="BrowseImages_Click" VerticalAlignment="Center"/>
             </StackPanel>
 
-            <StackPanel Orientation="Horizontal">
-                <Label Content="Videos Folder:" Width="100" VerticalAlignment="Center"/>
-                <TextBox x:Name="VideosTextBox" Width="300"
-                     Text="{Binding VideosFolder, UpdateSourceTrigger=PropertyChanged}"
-                     VerticalAlignment="Center"/>
-                <Button Content="Browse" Width="80" Margin="10,0,0,0" Click="BrowseVideos_Click" VerticalAlignment="Center"/>
-            </StackPanel>
+            
         </StackPanel>
 
         <!-- Buttons row -->
