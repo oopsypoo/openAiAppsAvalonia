@@ -28,7 +28,7 @@ namespace openAiAppsAvalonia
     {
         private static readonly HttpClient _httpClient = new HttpClient();
         private const string ModelsEndpoint = "https://api.openai.com/v1/models";
-        public static async Task<List<string>> GetAvailableModelsAsync(string apiKey, string? endpoint = null)
+        public static async Task<List<string>> GetAvailableModelsAsync(string apiKey, string endpoint = null)
         {
             string url = string.IsNullOrWhiteSpace(endpoint)
                 ? ModelsEndpoint

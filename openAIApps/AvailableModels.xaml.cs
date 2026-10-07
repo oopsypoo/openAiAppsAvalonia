@@ -17,13 +17,13 @@ namespace openAiAppsAvalonia
         private bool _filterHasError;
         private string _filterErrorMessage = string.Empty;
 
-        public event Action<List<string>>? ModelsApplied;
+        public event Action<List<string>> ModelsApplied;
 
         private void SortSelectedModels()
         {
             _selectedModels.Sort(StringComparer.OrdinalIgnoreCase);
         }
-        public AvailableModels(IEnumerable<string> availableModels, IEnumerable<string>? currentSelectedModels = null)
+        public AvailableModels(IEnumerable<string> availableModels, IEnumerable<string> currentSelectedModels = null)
         {
             InitializeComponent();
             // Normalize and sort the available models list.
@@ -45,7 +45,7 @@ namespace openAiAppsAvalonia
             RefreshAvailableList();
         }
 
-        private static List<string> NormalizeDistinct(IEnumerable<string>? models)
+        private static List<string> NormalizeDistinct(IEnumerable<string> models)
         {
             var result = new List<string>();
             var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);

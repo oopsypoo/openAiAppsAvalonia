@@ -1141,7 +1141,7 @@ namespace openAiAppsAvalonia
             public string Id { get; set; }
 
             [JsonPropertyName("output")]
-            public List<OutputItem>? Output { get; set; }
+            public List<OutputItem> Output { get; set; }
 
             [JsonPropertyName("previous_response_id")]
             public string PreviousResponseId { get; set; }
@@ -1150,22 +1150,22 @@ namespace openAiAppsAvalonia
         private class OutputItem
         {
             [JsonPropertyName("type")]
-            public string? Type { get; set; }
+            public string Type { get; set; }
 
             [JsonPropertyName("content")]
-            public List<ContentItem>? Content { get; set; }
+            public List<ContentItem> Content { get; set; }
 
             [JsonPropertyName("result")]
-            public string? Result { get; set; }
+            public string Result { get; set; }
 
             [JsonPropertyName("name")]
-            public string? Name { get; set; }
+            public string Name { get; set; }
 
             [JsonPropertyName("arguments")]
-            public string? Arguments { get; set; }
+            public string Arguments { get; set; }
 
             [JsonPropertyName("call_id")]
-            public string? CallId { get; set; }
+            public string CallId { get; set; }
         }
         private sealed class FunctionCallItem
         {
@@ -1176,13 +1176,13 @@ namespace openAiAppsAvalonia
         private class ContentItem
         {
             [JsonPropertyName("type")]
-            public string? Type { get; set; }
+            public string Type { get; set; }
 
             [JsonPropertyName("text")]
-            public string? Text { get; set; }
+            public string Text { get; set; }
 
             [JsonPropertyName("tool_name")]
-            public string? ToolName { get; set; }
+            public string ToolName { get; set; }
 
             [JsonPropertyName("tool_input")]
             public JsonElement? ToolInput { get; set; }

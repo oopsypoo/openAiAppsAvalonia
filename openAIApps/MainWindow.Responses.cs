@@ -26,7 +26,7 @@ namespace openAiAppsAvalonia
     {
         private List<string> _allModelsFromApi = new();
         private List<string> _activeModelsForResponses = new();
-        private AvailableModels? _availableModelsWindow;
+        private AvailableModels _availableModelsWindow;
         private bool _isApplyingResponsesSettings;
         private bool _responsesWebViewInitialized;
         private bool _responsesViewerPageLoaded;
@@ -34,11 +34,11 @@ namespace openAiAppsAvalonia
         private bool _bindingMarkdownThemeOptions;
         private bool _bindingPageThemeOptions;
         private List<MarkdownThemeOption> _markdownThemeOptions = new();
-        private MarkdownThemeOption? _selectedMarkdownTheme;
+        private MarkdownThemeOption _selectedMarkdownTheme;
         private List<PageThemeOption> _pageThemeOptions = new();
-        private PageThemeOption? _selectedPageTheme;
-        private PendingToolReview? _pendingToolReview;
-        private TaskCompletionSource<bool>? _pendingToolReviewTcs;
+        private PageThemeOption _selectedPageTheme;
+        private PendingToolReview _pendingToolReview;
+        private TaskCompletionSource<bool> _pendingToolReviewTcs;
         
         private string ApplyModelsToResponsesCombo(IEnumerable<string> models, string preferredModel = "gpt-4o")
         {
@@ -1803,7 +1803,7 @@ The assistant wants to replace text in an existing file.
             return value.GetString() ?? string.Empty;
         }
 
-        private static string? GetOptionalString(JsonElement root, string propertyName)
+        private static string GetOptionalString(JsonElement root, string propertyName)
         {
             if (!root.TryGetProperty(propertyName, out JsonElement value))
                 return null;
@@ -2032,7 +2032,7 @@ The assistant wants to replace text in an existing file.
             return System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(name);
         }
 
-        private MarkdownThemeOption? GetDefaultMarkdownThemeOption(List<MarkdownThemeOption> options)
+        private MarkdownThemeOption GetDefaultMarkdownThemeOption(List<MarkdownThemeOption> options)
         {
             var github = options.FirstOrDefault(t =>
                 t.FileName.Equals("github.min.css", StringComparison.OrdinalIgnoreCase));
@@ -2116,7 +2116,7 @@ The assistant wants to replace text in an existing file.
 
             var tcs = new TaskCompletionSource<bool>();
 
-            void Handler(object? sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs e)
+            void Handler(object sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs e)
             {
                 wvResponsesResponse.NavigationCompleted -= Handler;
                 tcs.TrySetResult(true);
@@ -2301,7 +2301,7 @@ The assistant wants to replace text in an existing file.
             return System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(name);
         }
 
-        private PageThemeOption? GetDefaultPageThemeOption(List<PageThemeOption> options)
+        private PageThemeOption GetDefaultPageThemeOption(List<PageThemeOption> options)
         {
             var preferred = options.FirstOrDefault(t =>
                 t.FileName.Equals("github-light-page.css", StringComparison.OrdinalIgnoreCase));

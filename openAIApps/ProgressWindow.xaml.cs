@@ -5,7 +5,7 @@ namespace openAiAppsAvalonia
 {
     public partial class ProgressWindow : Window
     {
-        public event EventHandler? Canceled;
+        public event EventHandler Canceled;
 
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {

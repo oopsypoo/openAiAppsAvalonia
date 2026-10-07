@@ -344,7 +344,7 @@ namespace openAiAppsAvalonia.Services
                 .ToListAsync();
         }
 
-        public async Task<ChatMessage?> GetMessageAsync(int messageId)
+        public async Task<ChatMessage> GetMessageAsync(int messageId)
         {
             await using var context = CreateDbContext();
 

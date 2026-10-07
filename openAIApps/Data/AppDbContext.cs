@@ -66,7 +66,7 @@ namespace openAiAppsAvalonia.Data
 
         public static void InitializeDatabase()
         {
-            string? folder = Path.GetDirectoryName(DatabaseFilePath);
+            string folder = Path.GetDirectoryName(DatabaseFilePath);
             if (!string.IsNullOrWhiteSpace(folder))
             {
                 Directory.CreateDirectory(folder);

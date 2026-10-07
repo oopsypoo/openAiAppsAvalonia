@@ -32,7 +32,7 @@ namespace openAiAppsAvalonia
         private string savepath_logs;
         private string savepath_images;
 
-        public event Action<List<string>>? ModelsApplied;
+        public event Action<List<string>> ModelsApplied;
 
         public static HttpResponseMessage GlobalhttpResponse = new HttpResponseMessage();
 
@@ -174,7 +174,7 @@ namespace openAiAppsAvalonia
             await EnsureResponsesWebViewInitializedAsync();
             await EnsureResponsesViewerPageLoadedAsync();
         }
-        private void LogsState_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        private void LogsState_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(LogsPanelState.SearchText) ||
                 e.PropertyName == nameof(LogsPanelState.TypeFilter))
@@ -193,7 +193,7 @@ namespace openAiAppsAvalonia
             }
         }
 
-        private void ResponsesState_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        private void ResponsesState_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (_responsesClient == null || _isApplyingResponsesSettings)
                 return;
@@ -325,7 +325,7 @@ namespace openAiAppsAvalonia
             ApplyModelsToResponsesCombo(_activeModelsForResponses, "gpt-4o");
         }
 
-        private void AvailableModelsWindow_Closed(object? sender, EventArgs e)
+        private void AvailableModelsWindow_Closed(object sender, EventArgs e)
         {
             if (_availableModelsWindow != null)
             {
@@ -815,19 +815,19 @@ namespace openAiAppsAvalonia
 
             return sb.ToString();
         }
-        private static void AppendMarkdownBullet(StringBuilder sb, string label, string? value)
+        private static void AppendMarkdownBullet(StringBuilder sb, string label, string value)
         {
             if (!string.IsNullOrWhiteSpace(value))
                 sb.AppendLine($"- {label}: {EscapeMarkdownInline(value)}");
         }
 
-        private static void AppendMarkdownIndentedBullet(StringBuilder sb, string label, string? value)
+        private static void AppendMarkdownIndentedBullet(StringBuilder sb, string label, string value)
         {
             if (!string.IsNullOrWhiteSpace(value))
                 sb.AppendLine($"  - {label}: {value}");
         }
 
-        private static void AppendMarkdownCodeBlockIfAny(StringBuilder sb, string label, string language, string? value)
+        private static void AppendMarkdownCodeBlockIfAny(StringBuilder sb, string label, string language, string value)
         {
             if (string.IsNullOrWhiteSpace(value))
                 return;
@@ -919,13 +919,13 @@ namespace openAiAppsAvalonia
             string encoded = System.Net.WebUtility.HtmlEncode(markdown);
             return $"<pre>{encoded}</pre>";
         }
-        private static void AppendTextLineIfAny(StringBuilder sb, string label, string? value)
+        private static void AppendTextLineIfAny(StringBuilder sb, string label, string value)
         {
             if (!string.IsNullOrWhiteSpace(value))
                 sb.AppendLine($"{label}: {value}");
         }
 
-        private static void AppendTextBlockIfAny(StringBuilder sb, string label, string? value)
+        private static void AppendTextBlockIfAny(StringBuilder sb, string label, string value)
         {
             if (string.IsNullOrWhiteSpace(value))
                 return;
@@ -935,7 +935,7 @@ namespace openAiAppsAvalonia
             sb.AppendLine();
         }
 
-        private static string EscapeMarkdownInline(string? value)
+        private static string EscapeMarkdownInline(string value)
         {
             if (string.IsNullOrEmpty(value))
                 return string.Empty;
@@ -982,7 +982,7 @@ namespace openAiAppsAvalonia
         }
         // This method checks if the developer tools were enabled for a given message by
         // inspecting the DeveloperToolSettingsJson property.
-        private static bool IsDeveloperToolsEnabled(string? developerToolSettingsJson)
+        private static bool IsDeveloperToolsEnabled(string developerToolSettingsJson)
         {// If the JSON is null or whitespace, we can assume developer tools were not enabled.
             if (string.IsNullOrWhiteSpace(developerToolSettingsJson))
                 return false;
