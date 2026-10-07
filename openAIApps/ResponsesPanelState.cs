@@ -1,7 +1,7 @@
-using openAIApps.Data;
+using openAiAppsAvalonia.Data;
 using System;
 
-namespace openAIApps
+namespace openAiAppsAvalonia
 {
     public class ResponsesPanelState : ObservableObject
     {

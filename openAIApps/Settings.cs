@@ -3,7 +3,7 @@ using System.IO;
 using System.Reflection;
 using System.Text.Json;
 
-namespace openAIApps
+namespace openAiAppsAvalonia
 {
     public class AppSettings
     {

@@ -1,4 +1,4 @@
-using openAIApps.Services;
+using openAiAppsAvalonia.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using Object = System.Object;
 
 
-namespace openAIApps
+namespace openAiAppsAvalonia
 {
     public class Responses : IDisposable
     {

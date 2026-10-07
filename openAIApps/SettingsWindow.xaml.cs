@@ -1,8 +1,8 @@
-﻿using System.IO;
+using System.IO;
 using System.Windows;
 
 
-namespace openAIApps
+namespace openAiAppsAvalonia
 {
     /// <summary>
     /// Interaction logic for SettingsWindow.xaml
@@ -83,9 +83,7 @@ namespace openAIApps
         }
 
         private void BrowseLogs_Click(object sender, RoutedEventArgs e) => BrowseFolder(LogsTextBox);
-        private void BrowseSounds_Click(object sender, RoutedEventArgs e) => BrowseFolder(SoundsTextBox);
         private void BrowseImages_Click(object sender, RoutedEventArgs e) => BrowseFolder(ImagesTextBox);
-        private void BrowseVideos_Click(object sender, RoutedEventArgs e) => BrowseFolder(VideosTextBox);
         /// <summary>
         /// Opens a folder browser dialog to select a folder for the given TextBox. It checks if the application has write permission to the selected folder before updating the TextBox.
         /// </summary>
@@ -125,9 +123,7 @@ namespace openAIApps
             // We just update the UI text boxes. 
             // Your EnsureSavePaths() will handle the actual directory creation later.
             LogsTextBox.Text = Path.Combine(appRoot, "logs");
-            SoundsTextBox.Text = Path.Combine(appRoot, "snds");
             ImagesTextBox.Text = Path.Combine(appRoot, "images");
-            VideosTextBox.Text = Path.Combine(appRoot, "videos");
         }
 
         private void Save_Click(object sender, RoutedEventArgs e)

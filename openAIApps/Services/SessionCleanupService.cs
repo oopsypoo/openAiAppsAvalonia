@@ -1,7 +1,7 @@
-﻿using openAIApps.Data;
+using openAiAppsAvalonia.Data;
 using System.Threading.Tasks;
 
-namespace openAIApps.Services
+namespace openAiAppsAvalonia.Services
 {
     public class SessionCleanupService
     {

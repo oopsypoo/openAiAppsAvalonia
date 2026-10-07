@@ -1,6 +1,6 @@
 using System;
 
-namespace openAIApps.Data
+namespace openAiAppsAvalonia.Data
 {
     public sealed class DeveloperToolCallLogItem
     {

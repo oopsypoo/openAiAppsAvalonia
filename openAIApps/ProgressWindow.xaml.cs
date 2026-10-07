@@ -1,7 +1,7 @@
-﻿using System;
+using System;
 using System.Windows;
 
-namespace openAIApps
+namespace openAiAppsAvalonia
 {
     public partial class ProgressWindow : Window
     {

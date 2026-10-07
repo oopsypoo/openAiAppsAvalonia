@@ -6,7 +6,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace openAIApps.Services
+namespace openAiAppsAvalonia.Services
 {
     public sealed class DotNetProjectToolService
     {

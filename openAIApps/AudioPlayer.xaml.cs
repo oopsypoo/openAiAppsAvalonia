@@ -1,11 +1,11 @@
-﻿using Microsoft.Win32;
+using Microsoft.Win32;
 using System;
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using whisper.AudioTools;
 
-namespace openAIApps
+namespace openAiAppsAvalonia
 {
     /// <summary>
     /// Interaction logic for Window1.xaml

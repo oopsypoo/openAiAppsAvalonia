@@ -1,4 +1,4 @@
-# openAIApps
+# openAiAppsAvalonia
 
 ## 2026-10-02 — Developer Tools for local .NET workspaces
 

@@ -1,6 +1,6 @@
 using Microsoft.Win32;
-using openAIApps.Data;
-using openAIApps.Services;
+using openAiAppsAvalonia.Data;
+using openAiAppsAvalonia.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -18,7 +18,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace openAIApps
+namespace openAiAppsAvalonia
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml. Code for different tabs are in their respective files.

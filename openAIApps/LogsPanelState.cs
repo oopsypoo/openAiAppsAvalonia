@@ -1,4 +1,4 @@
-﻿namespace openAIApps
+namespace openAiAppsAvalonia
 {
     public class LogsPanelState : ObservableObject
     {

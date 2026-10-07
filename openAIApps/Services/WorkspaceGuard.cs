@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 
-namespace openAIApps.Services
+namespace openAiAppsAvalonia.Services
 {
     public sealed class WorkspaceGuard
     {

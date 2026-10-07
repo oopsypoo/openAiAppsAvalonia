@@ -1,5 +1,5 @@
-﻿
-namespace openAIApps
+
+namespace openAiAppsAvalonia
 {
     public static class ResponseToolKeys
     {

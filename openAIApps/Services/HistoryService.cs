@@ -1,12 +1,12 @@
 using Microsoft.EntityFrameworkCore;
-using openAIApps.Data;
+using openAiAppsAvalonia.Data;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace openAIApps.Services
+namespace openAiAppsAvalonia.Services
 {
     public class HistoryService
     {

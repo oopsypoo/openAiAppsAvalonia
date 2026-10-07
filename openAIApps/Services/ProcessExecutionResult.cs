@@ -1,6 +1,6 @@
 using System;
 
-namespace openAIApps.Services
+namespace openAiAppsAvalonia.Services
 {
     public sealed class ProcessExecutionResult
     {

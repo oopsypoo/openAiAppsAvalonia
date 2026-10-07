@@ -1,14 +1,14 @@
-<Window x:Class="openAIApps.MainWindow"
-        x:Name="openAIApps"
+<Window x:Class="openAiAppsAvalonia.MainWindow"
+        x:Name="openAiAppsAvalonia"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
-        xmlns:converters="clr-namespace:openAIApps.Converters"
-        xmlns:local="clr-namespace:openAIApps"
+        xmlns:converters="clr-namespace:openAiAppsAvalonia.Converters"
+        xmlns:local="clr-namespace:openAiAppsAvalonia"
         mc:Ignorable="d"
-        Title="OpenAiApps" Height="768" Width="1080" Icon="/oai_small.png" >
+        Title="openAiAppsAvalonia" Height="768" Width="1080" Icon="/oai_small.png" >
 
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>

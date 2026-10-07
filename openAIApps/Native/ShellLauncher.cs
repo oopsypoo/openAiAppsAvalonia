@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
 
-namespace openAIApps.Native
+namespace openAiAppsAvalonia.Native
 {
     /// <summary>
     /// Provides functionality to display the Windows "Open With" dialog for selecting an application to open a

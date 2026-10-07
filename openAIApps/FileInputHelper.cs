@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace openAIApps
+namespace openAiAppsAvalonia
 {
     public static class FileInputHelper
     {

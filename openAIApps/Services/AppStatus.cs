@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.Threading;
 using System.Windows.Threading;
 
-namespace openAIApps.Services
+namespace openAiAppsAvalonia.Services
 {
     /// <summary>
     /// App-wide status dispatcher with scoped operations.

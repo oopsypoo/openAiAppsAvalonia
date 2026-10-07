@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.Windows.Data;
 
-namespace openAIApps.Converters
+namespace openAiAppsAvalonia.Converters
 {
     public sealed class InverseBooleanConverter : IValueConverter
     {

@@ -1,9 +1,9 @@
 using Markdig;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Win32;
-using openAIApps.Data;
-using openAIApps.Native;
-using openAIApps.Services;
+using openAiAppsAvalonia.Data;
+using openAiAppsAvalonia.Native;
+using openAiAppsAvalonia.Services;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -20,7 +20,7 @@ using System.Windows.Media;
  * Code for Responses-tab-controls
 */
 
-namespace openAIApps
+namespace openAiAppsAvalonia
 {
     public partial class MainWindow
     {

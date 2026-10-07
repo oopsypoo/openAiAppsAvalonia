@@ -1,8 +1,8 @@
-using openAIApps.Data;
+using openAiAppsAvalonia.Data;
 using System.Collections.ObjectModel;
-using static openAIApps.VideoClient;
+using static openAiAppsAvalonia.VideoClient;
 
-namespace openAIApps
+namespace openAiAppsAvalonia
 {
     public class VideoPanelState : ObservableObject
     {

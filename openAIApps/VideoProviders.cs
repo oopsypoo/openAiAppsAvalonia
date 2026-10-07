@@ -10,7 +10,7 @@ using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace openAIApps
+namespace openAiAppsAvalonia
 {
     public enum VideoProviderType
     {

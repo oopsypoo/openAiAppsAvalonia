@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace openAIApps.Data
+namespace openAiAppsAvalonia.Data
 {
     public sealed class PendingToolReview
     {

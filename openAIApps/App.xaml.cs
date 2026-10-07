@@ -1,6 +1,6 @@
-﻿using System.Windows;
+using System.Windows;
 
-namespace openAIApps
+namespace openAiAppsAvalonia
 {
     /// <summary>
     /// Interaction logic for App.xaml

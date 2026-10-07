@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.IO;
 
-namespace openAIApps.Data
+namespace openAiAppsAvalonia.Data
 {
     public class AppDbContext : DbContext
     {

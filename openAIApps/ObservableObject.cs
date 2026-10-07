@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace openAIApps
+namespace openAiAppsAvalonia
 {
     public abstract class ObservableObject : INotifyPropertyChanged
     {

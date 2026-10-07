@@ -1,4 +1,4 @@
-namespace openAIApps.Services
+namespace openAiAppsAvalonia.Services
 {
     public sealed class DeveloperToolsOptions
     {

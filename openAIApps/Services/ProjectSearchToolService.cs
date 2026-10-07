@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
 
-namespace openAIApps.Services
+namespace openAiAppsAvalonia.Services
 {
     public sealed class ProjectSearchToolService
     {

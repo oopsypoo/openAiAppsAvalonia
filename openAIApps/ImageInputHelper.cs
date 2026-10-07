@@ -1,7 +1,7 @@
-﻿using System;
+using System;
 using System.IO;
 
-namespace openAIApps
+namespace openAiAppsAvalonia
 {
     public static class ImageInputHelper
     {

@@ -4,7 +4,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace openAIApps.Services
+namespace openAiAppsAvalonia.Services
 {
     public sealed class DotNetCliService
     {

@@ -1,4 +1,4 @@
-using openAIApps.Data;
+using openAiAppsAvalonia.Data;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -12,9 +12,9 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
-using static openAIApps.VideoClient;
+using static openAiAppsAvalonia.VideoClient;
 
-namespace openAIApps
+namespace openAiAppsAvalonia
 {
     public partial class MainWindow
     {
