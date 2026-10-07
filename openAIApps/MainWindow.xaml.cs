@@ -401,17 +401,7 @@ namespace openAiAppsAvalonia
                 !string.IsNullOrWhiteSpace(f.MediaType) &&
                 f.MediaType.StartsWith("image/", StringComparison.OrdinalIgnoreCase));
 
-            bool hasVideo = files.Any(f =>
-                !string.IsNullOrWhiteSpace(f.MediaType) &&
-                f.MediaType.StartsWith("video/", StringComparison.OrdinalIgnoreCase));
-
-            string label = hasImage && hasVideo
-                ? "Mixed"
-                : hasImage
-                    ? "Image"
-                    : hasVideo
-                        ? "Video"
-                        : "Media";
+            string label = hasImage ? "Image" : "Media";
 
             return $"{label} ({files.Count})";
         }
@@ -704,12 +694,6 @@ namespace openAiAppsAvalonia
                 AppendMarkdownBullet(sb, "Search Context Size", message.SearchContextSize);
                 AppendMarkdownBullet(sb, "Image Size", message.ImageSize);
                 AppendMarkdownBullet(sb, "Image Quality", message.ImageQuality);
-                AppendMarkdownBullet(sb, "Video Length", message.VideoLength);
-                AppendMarkdownBullet(sb, "Video Size", message.VideoSize);
-                AppendMarkdownBullet(sb, "Remote ID", message.RemoteId);
-                AppendMarkdownBullet(sb, "Source Remote ID", message.SourceRemoteId);
-
-                sb.AppendLine($"- Remix: {(message.IsRemix ? "true" : "false")}");
                 sb.AppendLine();
 
                 if (message.MediaFiles != null && message.MediaFiles.Count > 0)
@@ -782,11 +766,6 @@ namespace openAiAppsAvalonia
                 AppendTextLineIfAny(sb, "  Search Context Size", message.SearchContextSize);
                 AppendTextLineIfAny(sb, "  Image Size", message.ImageSize);
                 AppendTextLineIfAny(sb, "  Image Quality", message.ImageQuality);
-                AppendTextLineIfAny(sb, "  Video Length", message.VideoLength);
-                AppendTextLineIfAny(sb, "  Video Size", message.VideoSize);
-                AppendTextLineIfAny(sb, "  Remote ID", message.RemoteId);
-                AppendTextLineIfAny(sb, "  Source Remote ID", message.SourceRemoteId);
-                sb.AppendLine($"  Remix: {(message.IsRemix ? "true" : "false")}");
                 sb.AppendLine();
 
                 if (message.MediaFiles != null && message.MediaFiles.Count > 0)

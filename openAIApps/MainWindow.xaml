@@ -1092,7 +1092,6 @@
                                   SelectedValue="{Binding LogsState.TypeFilter, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}">
                             <ComboBoxItem Content="All" Tag="All"/>
                             <ComboBoxItem Content="Responses" Tag="Responses"/>
-                            <ComboBoxItem Content="Video" Tag="Video"/>
                         </ComboBox>
 
                         <Label Content="Search Logs:"

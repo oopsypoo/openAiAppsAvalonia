@@ -37,19 +37,9 @@ namespace openAiAppsAvalonia.Services
                     string imgSize = null,
                     string imgQual = null,
                     string searchSize = null,
-                    string videoLength = null,
-                    string videoSize = null,
-                    bool isRemix = false,
-                    string remoteId = null,
-                    string sourceRemoteId = null,
                     string imageToolSettingsJson = null,
                     string developerToolSettingsJson = null,
-                    string toolCallLogJson = null,
-                    string videoProvider = null,
-                    string videoOperation = null,
-                    string videoFps = null,
-                    string videoCameraMotion = null,
-                    bool videoGenerateAudio = false)
+                    string toolCallLogJson = null)
 
         {
             await using var context = CreateDbContext();
@@ -72,16 +62,6 @@ namespace openAiAppsAvalonia.Services
                 ImageSize = imgSize ?? string.Empty,
                 ImageQuality = imgQual ?? string.Empty,
                 SearchContextSize = searchSize ?? string.Empty,
-                VideoProvider = videoProvider ?? string.Empty,
-                VideoOperation = videoOperation ?? string.Empty,
-                VideoLength = videoLength ?? string.Empty,
-                VideoSize = videoSize ?? string.Empty,
-                VideoFps = videoFps ?? string.Empty,
-                VideoCameraMotion = videoCameraMotion ?? string.Empty,
-                VideoGenerateAudio = videoGenerateAudio,
-                IsRemix = isRemix,
-                RemoteId = remoteId ?? string.Empty,
-                SourceRemoteId = sourceRemoteId ?? string.Empty,
                 Timestamp = DateTime.UtcNow,
                 ImageToolSettingsJson = imageToolSettingsJson ?? string.Empty,
                 DeveloperToolSettingsJson = developerToolSettingsJson ?? string.Empty,
@@ -246,22 +226,6 @@ namespace openAiAppsAvalonia.Services
             await context.SaveChangesAsync();
         }
 
-        public async Task<List<ChatMessage>> GetVideoLibraryMessagesAsync()
-        {
-            await using var context = CreateDbContext();
-
-            return await context.Messages
-                .Include(m => m.MediaFiles)
-                .Include(m => m.ChatSession)
-                .Where(m =>
-                    m.ChatSession.Endpoint == EndpointType.Video &&
-                    m.Role == "assistant" &&
-                    !string.IsNullOrWhiteSpace(m.RemoteId))
-                .OrderByDescending(m => m.Timestamp)
-                .AsNoTracking()
-                .ToListAsync();
-        }
-
         public async Task DeleteSessionAsync(int sessionId)
         {
             await using var context = CreateDbContext();
@@ -291,15 +255,6 @@ namespace openAiAppsAvalonia.Services
 
             context.Media.Add(media);
             await context.SaveChangesAsync();
-        }
-
-        public async Task<ChatMessage> GetMessageByRemoteVideoIdAsync(string videoId)
-        {
-            await using var context = CreateDbContext();
-
-            return await context.Messages
-                .AsNoTracking()
-                .FirstOrDefaultAsync(m => m.RemoteId == videoId);
         }
 
         public async Task<List<ChatSession>> GetFilteredSessionsAsync(string searchTerm, string endpointFilter)

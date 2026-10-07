@@ -55,11 +55,6 @@ namespace openAiAppsAvalonia.Data
             modelBuilder.Entity<ChatMessage>()
                 .HasIndex(m => m.Timestamp);
 
-            modelBuilder.Entity<ChatMessage>()
-                .HasIndex(m => m.RemoteId);
-            modelBuilder.Entity<ChatMessage>()
-                .HasIndex(m => m.SourceRemoteId);
-
             modelBuilder.Entity<MediaFile>()
                 .HasIndex(mf => mf.ChatMessageId);
         }
@@ -76,42 +71,6 @@ namespace openAiAppsAvalonia.Data
 
             // Keep this for now. Later we can move to Migrations.
             db.Database.EnsureCreated();
-            if (!ColumnExists(db, "Messages", "SourceRemoteId"))
-            {
-                db.Database.ExecuteSqlRaw(
-                    "ALTER TABLE Messages ADD COLUMN SourceRemoteId TEXT NOT NULL DEFAULT '';");
-            }
-
-            if (!ColumnExists(db, "Messages", "VideoProvider"))
-            {
-                db.Database.ExecuteSqlRaw(
-                    "ALTER TABLE Messages ADD COLUMN VideoProvider TEXT NOT NULL DEFAULT '';"
-                );
-            }
-            if (!ColumnExists(db, "Messages", "VideoOperation"))
-            {
-                db.Database.ExecuteSqlRaw(
-                    "ALTER TABLE Messages ADD COLUMN VideoOperation TEXT NOT NULL DEFAULT '';"
-                );
-            }
-            if (!ColumnExists(db, "Messages", "VideoFps"))
-            {
-                db.Database.ExecuteSqlRaw(
-                    "ALTER TABLE Messages ADD COLUMN VideoFps TEXT NOT NULL DEFAULT '';"
-                );
-            }
-            if (!ColumnExists(db, "Messages", "VideoCameraMotion"))
-            {
-                db.Database.ExecuteSqlRaw(
-                    "ALTER TABLE Messages ADD COLUMN VideoCameraMotion TEXT NOT NULL DEFAULT '';"
-                );
-            }
-            if (!ColumnExists(db, "Messages", "VideoGenerateAudio"))
-            {
-                db.Database.ExecuteSqlRaw(
-                    "ALTER TABLE Messages ADD COLUMN VideoGenerateAudio INTEGER NOT NULL DEFAULT 0;"
-                );
-            }
 
             // Ensure indexes exist even if DB was created before the model had them
             db.Database.ExecuteSqlRaw(
@@ -125,11 +84,6 @@ namespace openAiAppsAvalonia.Data
 
             db.Database.ExecuteSqlRaw(
                 "CREATE INDEX IF NOT EXISTS IX_Messages_Timestamp ON Messages (Timestamp);");
-
-            db.Database.ExecuteSqlRaw(
-                "CREATE INDEX IF NOT EXISTS IX_Messages_RemoteId ON Messages (RemoteId);");
-            db.Database.ExecuteSqlRaw(
-                "CREATE INDEX IF NOT EXISTS IX_Messages_SourceRemoteId ON Messages (SourceRemoteId);");
 
             db.Database.ExecuteSqlRaw(
                 "CREATE INDEX IF NOT EXISTS IX_Media_ChatMessageId ON Media (ChatMessageId);");

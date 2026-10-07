@@ -103,10 +103,10 @@
     </EmbeddedResource>
   </ItemGroup>
 
-  <!-- Retained in the working tree for now, but removed from this application's build. -->
+  <!-- Legacy sources retained in the working tree but removed from this application's build. -->
   <ItemGroup>
-    <Compile Remove="MainWindow.Video.cs;MainWindow.Whisper.cs;video.cs;VideoPanelState.cs;VideoProviders.cs;VideoPreviewWindow.xaml.cs;whisper.cs;whisper.audio.cs;AudioPlayer.xaml.cs;ConvertWavFile.xaml.cs;RecordingTool.xaml.cs;SpeechSynthesis.cs;SpeechSynthesisTool.xaml.cs" />
-    <Page Remove="VideoPreviewWindow.xaml;AudioPlayer.xaml;ConvertWavFile.xaml;RecordingTool.xaml;SpeechSynthesisTool.xaml" />
+    <Compile Remove="MainWindow.Whisper.cs;whisper.cs;whisper.audio.cs;AudioPlayer.xaml.cs;ConvertWavFile.xaml.cs;RecordingTool.xaml.cs;SpeechSynthesis.cs;SpeechSynthesisTool.xaml.cs" />
+    <Page Remove="AudioPlayer.xaml;ConvertWavFile.xaml;RecordingTool.xaml;SpeechSynthesisTool.xaml" />
   </ItemGroup>
 
 </Project>

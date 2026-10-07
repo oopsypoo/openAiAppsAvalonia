@@ -8,8 +8,7 @@ namespace openAiAppsAvalonia.Data
 {
     public enum EndpointType
     {
-        Responses,
-        Video
+        Responses
     }
     public class ChatSession
     {
@@ -68,17 +67,6 @@ namespace openAiAppsAvalonia.Data
         public string ImageSize { get; set; } = string.Empty;
         public string ImageQuality { get; set; } = string.Empty;
 
-        // --- Video DNA ---
-        public string VideoProvider { get; set; } = string.Empty;
-        public string VideoOperation { get; set; } = string.Empty;
-        public string VideoLength { get; set; } = string.Empty;
-        public string VideoSize { get; set; } = string.Empty;
-        public string VideoFps { get; set; } = string.Empty;
-        public string VideoCameraMotion { get; set; } = string.Empty;
-        public bool VideoGenerateAudio { get; set; }
-        public bool IsRemix { get; set; }
-        public string RemoteId { get; set; } = string.Empty;
-        public string SourceRemoteId { get; set; } = string.Empty;
         public string RawJson { get; set; } = string.Empty;
 
         public string ImageToolSettingsJson { get; set; } = string.Empty;
