@@ -17,25 +17,20 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using static openAIApps.VideoClient;
 
 namespace openAIApps
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml. Code for different tabs are in their respective files.
-    /// MainWindow.Responses.xaml.cs, MainWindow.Video.cs, MainWindow.Whisper.cs
+    /// Responses and Logs are the active main-window tabs.
     /// menu-items are still here, with some menu-'actions'
     /// </summary>
     public partial class MainWindow : Window
     {
         readonly string OpenAPIKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
-        readonly string LtxApiKey = Environment.GetEnvironmentVariable("LTX_API_KEY");
-
         private AppSettings _settings;
         private string savepath_logs;
-        private string savepath_snds;
         private string savepath_images;
-        private string savepath_videos;
 
         public event Action<List<string>>? ModelsApplied;
 
@@ -43,7 +38,6 @@ namespace openAIApps
 
 
         private string _responsesImagePath = string.Empty;
-        private string _videoReferencePath = string.Empty;
         private string _responsesPreviewImagePath = string.Empty;
         public ObservableCollection<MediaFile> ResponsePreviewImages { get; } = new();
 
@@ -59,15 +53,8 @@ namespace openAIApps
         // Logs tab source collection
         //public ObservableCollection<ChatSession> Sessions { get; } = new();
         public ObservableCollection<LogRowViewModel> LogRows { get; } = new();
-        // Video tab source collection
-        private VideoClient _videoClient;
-        private LtxVideoProvider? _ltxVideoProvider;
-        public ObservableCollection<VideoListItem> _videoHistory = new();
-        public ObservableCollection<VideoListItem> VideoHistory => _videoHistory;
-        public ObservableCollection<ChatMessage> CurrentVideoMessages { get; } = new();
         public ObservableCollection<ResponseAttachmentItem> PendingResponseAttachments { get; } = new();
         public ObservableCollection<DeveloperToolCallLogItem> DeveloperToolCallLogs { get; } = new();
-        public VideoPanelState VideoState { get; } = new();
 
         /// <summary>
         /// Gets or sets the collection view that provides a filtered and sorted view of the log entries.
@@ -77,7 +64,6 @@ namespace openAIApps
         public ResponsesPanelState ResponsesState { get; } = new();
 
         private int? _activeResponsesSessionId;
-        private int? _activeVideoSessionId;
         private System.Windows.Threading.DispatcherTimer _statusEllipsisTimer;
         private int _ellipsisCounter = 0;
         private AppStatus _appStatus;
@@ -120,16 +106,13 @@ namespace openAIApps
 
         private async Task<int> EnsureSessionActiveAsync(EndpointType type, string firstPrompt)
         {
-            if (type == EndpointType.Responses && _activeResponsesSessionId == null)
+            if (_activeResponsesSessionId == null)
             {
-                _activeResponsesSessionId = await _historyService.StartNewSessionAsync(ExtractTitle(firstPrompt), type);
-            }
-            else if (type == EndpointType.Video && _activeVideoSessionId == null)
-            {
-                _activeVideoSessionId = await _historyService.StartNewSessionAsync(ExtractTitle(firstPrompt), type);
+                _activeResponsesSessionId = await _historyService.StartNewSessionAsync(
+                    ExtractTitle(firstPrompt), EndpointType.Responses);
             }
 
-            return (type == EndpointType.Responses ? _activeResponsesSessionId : _activeVideoSessionId)!.Value;
+            return _activeResponsesSessionId.Value;
         }
 
         private string ExtractTitle(string prompt)
@@ -150,14 +133,9 @@ namespace openAIApps
             _settings ??= AppSettings.LoadSettings();
 
             savepath_logs = Path.Combine(_settings.AppRoot, _settings.LogsFolder);
-            savepath_snds = Path.Combine(_settings.AppRoot, _settings.SoundsFolder);
             savepath_images = Path.Combine(_settings.AppRoot, _settings.ImagesFolder);
-            savepath_videos = Path.Combine(_settings.AppRoot, _settings.VideosFolder);
-
             Directory.CreateDirectory(savepath_logs);
-            Directory.CreateDirectory(savepath_snds);
             Directory.CreateDirectory(savepath_images);
-            Directory.CreateDirectory(savepath_videos);
 
             _mediaStorageService?.SetImagesFolder(savepath_images);
         }
@@ -266,15 +244,7 @@ namespace openAIApps
         public void InitControls()
         {
             EnsureSavePaths();
-            _videoClient = new VideoClient(apiKey: OpenAPIKey);
-            if (!string.IsNullOrWhiteSpace(LtxApiKey))
-            {
-                _ltxVideoProvider = new LtxVideoProvider(LtxApiKey);
-            }
-            InitVideoState();
-            InitVideoList();
-            // set it here to avoid whisper from trying to use it before it's set
-            // whisper is collapsed, ubtil I fix it
+            // Start with the Responses interface selected.
             tabMain.SelectedItem = tpResponses;
         }
 
@@ -320,30 +290,6 @@ namespace openAIApps
             bitmap.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
             bitmap.EndInit();
             return bitmap;
-        }
-
-        private void menuRecord_Click(object sender, RoutedEventArgs e)
-        {
-            RecordingTool rt = new RecordingTool();
-            rt.Show();
-        }
-
-        private void menuConvert_Click(object sender, RoutedEventArgs e)
-        {
-            ConvertWavFile cvf = new ConvertWavFile();
-            cvf.Show();
-        }
-
-        private void menuPlayFile_Click(object sender, RoutedEventArgs e)
-        {
-            AudioPlayer ap = new AudioPlayer();
-            ap.Show();
-        }
-
-        private void menuSpeechSynthesisTool_Click(object sender, RoutedEventArgs e)
-        {
-            SpeechSynthesisTool speechSynthesisTool = new SpeechSynthesisTool();
-            speechSynthesisTool.ShowDialog();
         }
 
         private async void menuAvailableModels_Click(object sender, RoutedEventArgs e)
@@ -561,11 +507,6 @@ namespace openAIApps
                 await ResetResponsesUi(clearPrompt: true);
             }
 
-            if (session.Endpoint == EndpointType.Video &&
-                _activeVideoSessionId == session.Id)
-            {
-                ResetVideoUI();
-            }
         }
         private async void OnDeleteSessionClick(object sender, RoutedEventArgs e)
         {
@@ -620,19 +561,8 @@ namespace openAIApps
                 return;
 
             _activeResponsesSessionId = null;
-            _activeVideoSessionId = null;
 
-            if (selectedSession.Endpoint == EndpointType.Video)
-            {
-                await Dispatcher.InvokeAsync(() =>
-                {
-                    tabMain.SelectedItem = tpVideo;
-                    tabMain.UpdateLayout();
-                }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
-
-                await LoadVideoSessionAsync(selectedSession.Id);
-            }
-            else if (selectedSession.Endpoint == EndpointType.Responses)
+            if (selectedSession.Endpoint == EndpointType.Responses)
             {
                 _appStatus.Set("Loading EndpointType.Responses");
                 await Dispatcher.InvokeAsync(() =>

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Reflection;
 using System.Text.Json;
@@ -9,9 +9,7 @@ namespace openAIApps
     {
         public string AppRoot { get; set; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "openapi");
         public string LogsFolder { get; set; } = "logs";  // Relative to AppRoot
-        public string SoundsFolder { get; set; } = "snds";
         public string ImagesFolder { get; set; } = "images";
-        public string VideosFolder { get; set; } = "videos";
         public string ResponsesMarkdownTheme { get; set; } = "github.min.css";
         public string ResponsesPageTheme { get; set; } = "github-light-page.css";
 

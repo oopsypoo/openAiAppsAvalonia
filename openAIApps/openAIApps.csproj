@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -32,26 +32,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <COMReference Include="Microsoft.Vbe.Interop.Forms">
-      <WrapperTool>tlbimp</WrapperTool>
-      <VersionMinor>0</VersionMinor>
-      <VersionMajor>2</VersionMajor>
-      <Guid>0d452ee1-e08f-101a-852e-02608c4d0bb4</Guid>
-      <Lcid>0</Lcid>
-      <Isolated>false</Isolated>
-      <EmbedInteropTypes>true</EmbedInteropTypes>
-    </COMReference>
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Include="oai_small.ico" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Azure.AI.OpenAI" Version="2.1.0" />
     <PackageReference Include="Markdig" Version="1.1.2" />
-    <PackageReference Include="MediaToolkit" Version="1.1.0.1" />
-    <PackageReference Include="Microsoft.CognitiveServices.Speech" Version="1.48.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.*">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
@@ -62,7 +48,6 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3856.49" />
-    <PackageReference Include="NAudio" Version="2.3.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -115,6 +100,12 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <!-- Retained in the working tree for now, but removed from this application's build. -->
+  <ItemGroup>
+    <Compile Remove="MainWindow.Video.cs;MainWindow.Whisper.cs;video.cs;VideoPanelState.cs;VideoProviders.cs;VideoPreviewWindow.xaml.cs;whisper.cs;whisper.audio.cs;AudioPlayer.xaml.cs;ConvertWavFile.xaml.cs;RecordingTool.xaml.cs;SpeechSynthesis.cs;SpeechSynthesisTool.xaml.cs" />
+    <Page Remove="VideoPreviewWindow.xaml;AudioPlayer.xaml;ConvertWavFile.xaml;RecordingTool.xaml;SpeechSynthesisTool.xaml" />
   </ItemGroup>
 
 </Project>
