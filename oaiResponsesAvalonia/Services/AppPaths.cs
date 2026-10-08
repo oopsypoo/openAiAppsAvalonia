@@ -5,7 +5,7 @@ namespace oaiResponsesAvalonia.Services
 {
     public static class AppPaths
     {
-        public const string ApplicationDirectoryName = "openAiAppsAvalonia";
+        public const string ApplicationDirectoryName = "oaiResponsesAvalonia";
 
         public static string DataDirectory { get; } = GetDataDirectory();
         public static string SettingsFilePath => Path.Combine(DataDirectory, "settings.json");
