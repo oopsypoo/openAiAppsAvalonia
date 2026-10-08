@@ -7,7 +7,7 @@
     <Nullable>disable</Nullable>
     <UseWPF>true</UseWPF>
     <Platforms>AnyCPU;x64</Platforms>
-    <ApplicationIcon>oai_small.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\oai_small.ico</ApplicationIcon>
     <PlatformTarget>x64</PlatformTarget>
     <SupportedOSPlatformVersion>10.0.26100.0</SupportedOSPlatformVersion>
     <ImplicitUsings>disable</ImplicitUsings>
@@ -22,18 +22,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
 
   <ItemGroup>
-    <None Remove="noo.png" />
     <None Remove="no_pic.png" />
-    <None Remove="oai.jpg" />
     <None Remove="oai_small.png" />
-    <None Remove="qa.png" />
     <None Remove="sign.jpg" />
-    <None Remove="sign3.jpg" />
-    <None Remove="sign4.jpg" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="oai_small.ico" />
   </ItemGroup>
 
   <ItemGroup>
@@ -52,14 +43,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="noo.png" />
-    <Resource Include="no_pic.png" />
-    <Resource Include="oai.jpg" />
-    <Resource Include="oai_small.png" />
-    <Resource Include="qa.png" />
-    <Resource Include="sign.jpg" />
-    <Resource Include="sign3.jpg" />
-    <Resource Include="sign4.jpg" />
+    <Resource Include="Resources\no_pic.png" />
+    <Resource Include="Resources\oai_small.png" />
   </ItemGroup>
 	<ItemGroup>
 		<None Update="Assets\MarkdownViewer\page-themes\github-light-page.css">

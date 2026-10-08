@@ -8,7 +8,7 @@
         xmlns:converters="clr-namespace:openAiAppsAvalonia.Converters"
         xmlns:local="clr-namespace:openAiAppsAvalonia"
         mc:Ignorable="d"
-        Title="openAiAppsAvalonia" Height="768" Width="1080" Icon="/oai_small.png" >
+        Title="openAiAppsAvalonia" Height="768" Width="1080" Icon="/Resources/oai_small.png" >
 
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
