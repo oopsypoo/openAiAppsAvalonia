@@ -30,7 +30,7 @@ namespace openAiAppsAvalonia
         private bool _isApplyingResponsesSettings;
         private bool _responsesWebViewInitialized;
         private bool _responsesViewerPageLoaded;
-        private string _environmentCapabilityReport = string.Empty;
+        private EnvironmentCapabilityReport _environmentCapabilityReport = new EnvironmentCapabilityReport(string.Empty, null);
 
         private bool _bindingMarkdownThemeOptions;
         private bool _bindingPageThemeOptions;

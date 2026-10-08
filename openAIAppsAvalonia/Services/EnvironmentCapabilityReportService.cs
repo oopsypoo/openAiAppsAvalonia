@@ -9,10 +9,15 @@ namespace openAiAppsAvalonia.Services
 {
     /// <summary>
     /// Collects a lightweight, read-only snapshot of the host and workspace.
-    /// This class is UI-framework independent so it can be reused during the Avalonia migration.
+    /// This class and its result models are UI-framework independent.
     /// </summary>
     public sealed class EnvironmentCapabilityReportService
     {
+        private const int MaximumWorkspaceFiles = 10000;
+        private const int MaximumWorkspaceDirectories = 2000;
+        private const int MaximumWorkspaceDepth = 6;
+        private const int MaximumProjectFileEntries = 100;
+
         private static readonly string[] ExcludedDirectoryNames =
         {
             ".git", ".vs", ".idea", "bin", "obj", "node_modules", "packages", "target", "venv", ".venv"
@@ -25,9 +30,11 @@ namespace openAiAppsAvalonia.Services
             "qmake", "qtpaths", "node", "npm", "git"
         };
 
-        public string CreateReport(string workspaceRoot)
+        public EnvironmentCapabilityReport CreateReport(string workspaceRoot)
         {
             var report = new StringBuilder();
+            WorkspaceTreeNode workspaceTree = null;
+
             report.AppendLine("Environment capabilities report");
             report.AppendLine("Generated: " + DateTimeOffset.Now.ToString("u"));
             report.AppendLine();
@@ -46,7 +53,7 @@ namespace openAiAppsAvalonia.Services
             }
 
             report.AppendLine();
-            report.AppendLine("Workspace project files");
+            report.AppendLine("Workspace contents and project files");
 
             string root = (workspaceRoot ?? string.Empty).Trim();
             if (root.Length == 0)
@@ -59,25 +66,47 @@ namespace openAiAppsAvalonia.Services
             }
             else
             {
-                report.AppendLine("- Root: " + Path.GetFullPath(root));
-                IReadOnlyList<string> projectFiles = FindProjectFiles(root, 10000);
-                if (projectFiles.Count == 0)
+                string fullRoot = Path.GetFullPath(root);
+                report.AppendLine("- Root: " + fullRoot);
+                WorkspaceScanResult scan = ScanWorkspace(fullRoot);
+                workspaceTree = scan.RootNode;
+                report.AppendLine("- Files inspected: " + scan.FilesInspected + (scan.ReachedFileLimit ? " (file limit reached; there may be more files)" : string.Empty));
+                report.AppendLine("- Directories inspected: " + scan.DirectoriesInspected + (scan.ReachedDirectoryLimit ? " (directory limit reached; there may be more folders)" : string.Empty));
+
+                if (scan.FilesInspected == 0)
+                    report.AppendLine("- No files were found within the scanned workspace depth.");
+                else
                 {
-                    report.AppendLine("- No recognized project or solution files found (scan limited to 10,000 files).");
+                    report.AppendLine();
+                    report.AppendLine("File types (by extension)");
+                    foreach (var item in scan.ExtensionCounts.OrderByDescending(item => item.Value).ThenBy(item => item.Key).Take(20))
+                        report.AppendLine("- " + item.Key + ": " + item.Value);
+                    if (scan.ExtensionCounts.Count > 20)
+                        report.AppendLine("- Other extensions: " + (scan.ExtensionCounts.Count - 20) + " additional types");
+                }
+
+                report.AppendLine();
+                report.AppendLine("Recognized project and configuration files");
+                if (scan.ProjectFileCount == 0)
+                {
+                    report.AppendLine("- No recognized project or solution files found.");
+                    report.AppendLine("- Likely project ecosystems: unknown or not yet initialized");
                 }
                 else
                 {
-                    foreach (string projectFile in projectFiles)
+                    foreach (string projectFile in scan.ProjectFiles)
                         report.AppendLine("- " + projectFile);
-
-                    report.AppendLine("- Likely project ecosystems: " + string.Join(", ", IdentifyProjectTypes(projectFiles)));
+                    if (scan.ProjectFileCount > scan.ProjectFiles.Count)
+                        report.AppendLine("- ... project file list limited to " + MaximumProjectFileEntries + " entries");
+                    report.AppendLine("- Likely project ecosystems: " + string.Join(", ", IdentifyProjectTypes(scan.ProjectFiles)));
                 }
             }
 
             report.AppendLine();
             report.AppendLine("This is an informational snapshot. Tool availability is detected from PATH; no commands were run.");
+            report.AppendLine("The workspace tree lists paths only; file contents are not read. Common generated/dependency folders are shown as skipped. Scanning is limited to depth " + MaximumWorkspaceDepth + ", " + MaximumWorkspaceFiles + " files, and " + MaximumWorkspaceDirectories + " directories.");
             report.AppendLine("Project type detection is based on filenames and may not identify every project in a workspace.");
-            return report.ToString();
+            return new EnvironmentCapabilityReport(report.ToString(), workspaceTree);
         }
 
         private static string GetPlatformName()
@@ -125,42 +154,114 @@ namespace openAiAppsAvalonia.Services
             return new[] { string.Empty }.Concat(pathExt.Split(';').Where(x => !string.IsNullOrWhiteSpace(x)));
         }
 
-        private static IReadOnlyList<string> FindProjectFiles(string root, int maximumFiles)
+        private static WorkspaceScanResult ScanWorkspace(string root)
         {
-            var found = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
-            var pending = new Stack<(string Directory, int Depth)>();
-            pending.Push((root, 0));
-            int visitedFiles = 0;
+            var result = new WorkspaceScanResult { DirectoriesDiscovered = 1 };
+            var rootInfo = new DirectoryInfo(root);
+            result.RootNode = new WorkspaceTreeNode(string.IsNullOrEmpty(rootInfo.Name) ? root : rootInfo.Name, true);
+            var pending = new Stack<(string Directory, int Depth, WorkspaceTreeNode Node)>();
+            pending.Push((root, 0, result.RootNode));
 
-            while (pending.Count > 0 && visitedFiles < maximumFiles)
+            while (pending.Count > 0 && result.FilesInspected < MaximumWorkspaceFiles && result.DirectoriesInspected < MaximumWorkspaceDirectories)
             {
                 var current = pending.Pop();
+                result.DirectoriesInspected++;
+
                 try
                 {
                     foreach (string file in Directory.EnumerateFiles(current.Directory))
                     {
-                        visitedFiles++;
+                        if (result.FilesInspected >= MaximumWorkspaceFiles)
+                        {
+                            result.ReachedFileLimit = true;
+                            break;
+                        }
+
+                        result.FilesInspected++;
                         string name = Path.GetFileName(file);
+                        string relativePath = Path.GetRelativePath(root, file);
+                        current.Node.Children.Add(new WorkspaceTreeNode(name, false));
+                        string extension = Path.GetExtension(name);
+                        string extensionLabel = string.IsNullOrEmpty(extension) ? "[no extension]" : extension.ToLowerInvariant();
+                        result.ExtensionCounts[extensionLabel] = result.ExtensionCounts.TryGetValue(extensionLabel, out int count) ? count + 1 : 1;
+
                         if (IsProjectFile(name))
-                            found.Add(Path.GetRelativePath(root, file));
-                        if (visitedFiles >= maximumFiles) break;
+                        {
+                            result.ProjectFileCount++;
+                            if (result.ProjectFiles.Count < MaximumProjectFileEntries)
+                                result.ProjectFiles.Add(relativePath);
+                        }
                     }
 
-                    if (current.Depth >= 6 || visitedFiles >= maximumFiles)
+                    if (current.Depth >= MaximumWorkspaceDepth)
+                    {
+                        current.Node.Name += " (depth limit)";
+                        continue;
+                    }
+                    if (result.FilesInspected >= MaximumWorkspaceFiles)
                         continue;
 
                     foreach (string directory in Directory.EnumerateDirectories(current.Directory))
                     {
+                        if (result.DirectoriesDiscovered >= MaximumWorkspaceDirectories)
+                        {
+                            result.ReachedDirectoryLimit = true;
+                            current.Node.Children.Add(new WorkspaceTreeNode("[additional folders omitted: directory limit]", true));
+                            break;
+                        }
+
                         string name = Path.GetFileName(directory);
-                        if (!ExcludedDirectoryNames.Contains(name, StringComparer.OrdinalIgnoreCase))
-                            pending.Push((directory, current.Depth + 1));
+                        bool excluded = ExcludedDirectoryNames.Contains(name, StringComparer.OrdinalIgnoreCase);
+                        var childNode = new WorkspaceTreeNode(excluded ? name + " (skipped)" : name, true);
+                        current.Node.Children.Add(childNode);
+                        result.DirectoriesDiscovered++;
+                        if (excluded)
+                            continue;
+
+                        try
+                        {
+                            if ((File.GetAttributes(directory) & FileAttributes.ReparsePoint) == 0)
+                            {
+                                if (result.DirectoriesInspected + pending.Count >= MaximumWorkspaceDirectories)
+                                {
+                                    result.ReachedDirectoryLimit = true;
+                                    childNode.Name += " (not scanned: directory limit)";
+                                    continue;
+                                }
+                                pending.Push((directory, current.Depth + 1, childNode));
+                            }
+                            else
+                            {
+                                childNode.Name += " (not followed: link)";
+                            }
+                        }
+                        catch (UnauthorizedAccessException) { childNode.Name += " (not accessible)"; }
+                        catch (IOException) { childNode.Name += " (not accessible)"; }
                     }
                 }
-                catch (UnauthorizedAccessException) { }
-                catch (IOException) { }
+                catch (UnauthorizedAccessException) { current.Node.Name += " (not accessible)"; }
+                catch (IOException) { current.Node.Name += " (not accessible)"; }
             }
 
-            return found.Take(100).ToArray();
+            if (pending.Count > 0 && result.DirectoriesInspected >= MaximumWorkspaceDirectories)
+                result.ReachedDirectoryLimit = true;
+            if (result.FilesInspected >= MaximumWorkspaceFiles)
+                result.ReachedFileLimit = true;
+
+            SortTree(result.RootNode);
+            result.ProjectFiles.Sort(StringComparer.OrdinalIgnoreCase);
+            return result;
+        }
+
+        private static void SortTree(WorkspaceTreeNode node)
+        {
+            node.Children.Sort((left, right) =>
+            {
+                int directoryOrder = right.IsDirectory.CompareTo(left.IsDirectory);
+                return directoryOrder != 0 ? directoryOrder : StringComparer.OrdinalIgnoreCase.Compare(left.Name, right.Name);
+            });
+            foreach (WorkspaceTreeNode child in node.Children)
+                SortTree(child);
         }
 
         private static bool IsProjectFile(string name)
@@ -191,7 +292,7 @@ namespace openAiAppsAvalonia.Services
             if (files.Any(x => Path.GetFileName(x).Equals("CMakeLists.txt", StringComparison.OrdinalIgnoreCase) || Path.GetExtension(x).Equals(".vcxproj", StringComparison.OrdinalIgnoreCase))) types.Add("C/C++ (CMake or Visual C++)");
             if (files.Any(x => Path.GetExtension(x).Equals(".pro", StringComparison.OrdinalIgnoreCase))) types.Add("Qt qmake (possible)");
             if (files.Any(x => Path.GetFileName(x).Equals("package.json", StringComparison.OrdinalIgnoreCase))) types.Add("Node.js");
-            return types.Count == 0 ? new[] { "unknown or unrecognized" } : types;
+            return types.Count == 0 ? new[] { "unknown or not yet initialized" } : types;
         }
 
         private static bool IsDotNetProjectFile(string file)
@@ -204,5 +305,43 @@ namespace openAiAppsAvalonia.Services
                 || extension.Equals(".fsproj", StringComparison.OrdinalIgnoreCase)
                 || extension.Equals(".vbproj", StringComparison.OrdinalIgnoreCase);
         }
+
+        private sealed class WorkspaceScanResult
+        {
+            public WorkspaceTreeNode RootNode { get; set; }
+            public int FilesInspected { get; set; }
+            public int DirectoriesInspected { get; set; }
+            public int DirectoriesDiscovered { get; set; }
+            public int ProjectFileCount { get; set; }
+            public bool ReachedFileLimit { get; set; }
+            public bool ReachedDirectoryLimit { get; set; }
+            public Dictionary<string, int> ExtensionCounts { get; } = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            public List<string> ProjectFiles { get; } = new List<string>();
+        }
+    }
+
+    public sealed class EnvironmentCapabilityReport
+    {
+        public EnvironmentCapabilityReport(string text, WorkspaceTreeNode workspaceRoot)
+        {
+            Text = text;
+            WorkspaceRoot = workspaceRoot;
+        }
+
+        public string Text { get; }
+        public WorkspaceTreeNode WorkspaceRoot { get; }
+    }
+
+    public sealed class WorkspaceTreeNode
+    {
+        public WorkspaceTreeNode(string name, bool isDirectory)
+        {
+            Name = name;
+            IsDirectory = isDirectory;
+        }
+
+        public string Name { get; set; }
+        public bool IsDirectory { get; }
+        public List<WorkspaceTreeNode> Children { get; } = new List<WorkspaceTreeNode>();
     }
 }

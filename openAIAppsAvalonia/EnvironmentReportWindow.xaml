@@ -1,16 +1,24 @@
 <Window x:Class="openAiAppsAvalonia.EnvironmentReportWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:services="clr-namespace:openAiAppsAvalonia.Services"
         Title="Developer Environment Report"
         Width="760"
-        Height="600"
+        Height="480"
         MinWidth="520"
-        MinHeight="380"
+        MinHeight="440"
         WindowStartupLocation="CenterOwner">
+    <Window.Resources>
+        <HierarchicalDataTemplate DataType="{x:Type services:WorkspaceTreeNode}"
+                                  ItemsSource="{Binding Children}">
+            <TextBlock Text="{Binding Name}" />
+        </HierarchicalDataTemplate>
+    </Window.Resources>
     <Grid Margin="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
+            <RowDefinition Height="220" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
@@ -28,7 +36,19 @@
                  HorizontalScrollBarVisibility="Auto"
                  VerticalScrollBarVisibility="Auto"
                  TextWrapping="NoWrap" />
-        <Button Grid.Row="2"
+        <StackPanel x:Name="WorkspaceTreeSection"
+                    Grid.Row="2"
+                    Margin="0,10,0,0">
+            <TextBlock Margin="0,0,0,4"
+                       FontWeight="SemiBold"
+                       Text="Workspace file tree (folders marked as skipped are not scanned)" />
+            <TreeView x:Name="WorkspaceTreeView"
+                      Height="320"
+                      BorderThickness="1"
+                      ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                      ScrollViewer.VerticalScrollBarVisibility="Auto" />
+        </StackPanel>
+        <Button Grid.Row="3"
                 Width="90"
                 Margin="0,10,0,0"
                 HorizontalAlignment="Right"
