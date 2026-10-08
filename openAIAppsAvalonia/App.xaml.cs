@@ -1,4 +1,5 @@
 using System.Windows;
+using openAiAppsAvalonia.Services;
 
 namespace openAiAppsAvalonia
 {
@@ -7,5 +8,6 @@ namespace openAiAppsAvalonia
     /// </summary>
     public partial class App : Application
     {
+        public static IDialogService Dialogs { get; set; } = new WpfDialogService();
     }
 }

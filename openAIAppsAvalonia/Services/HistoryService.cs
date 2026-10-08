@@ -10,6 +10,13 @@ namespace openAiAppsAvalonia.Services
 {
     public class HistoryService
     {
+        private readonly MediaStorageService _mediaStorageService;
+
+        public HistoryService(MediaStorageService mediaStorageService = null)
+        {
+            _mediaStorageService = mediaStorageService ?? new MediaStorageService();
+        }
+
         private AppDbContext CreateDbContext() => new AppDbContext();
 
         public async Task<int> StartNewSessionAsync(string initialTitle, EndpointType endpoint)
@@ -141,7 +148,7 @@ namespace openAiAppsAvalonia.Services
                 .ToList();
         }
 
-        private static object BuildApiMessage(ChatMessage message)
+        private object BuildApiMessage(ChatMessage message)
         {
             string role = (message.Role ?? string.Empty).ToLowerInvariant();
 
@@ -158,13 +165,15 @@ namespace openAiAppsAvalonia.Services
                     });
                 }
 
-                foreach (var media in message.MediaFiles.Where(m =>
-                             !string.IsNullOrWhiteSpace(m.LocalPath) &&
-                             File.Exists(m.LocalPath)))
+                foreach (var media in message.MediaFiles)
                 {
+                    string mediaPath = _mediaStorageService.ResolveMediaPath(media.LocalPath);
+                    if (string.IsNullOrWhiteSpace(mediaPath) || !File.Exists(mediaPath))
+                        continue;
+
                     if (FileInputHelper.IsImageMimeType(media.MediaType))
                     {
-                        string dataUrl = ImageInputHelper.ToDataUrl(media.LocalPath);
+                        string dataUrl = ImageInputHelper.ToDataUrl(mediaPath);
 
                         if (!string.IsNullOrWhiteSpace(dataUrl))
                         {
@@ -179,16 +188,16 @@ namespace openAiAppsAvalonia.Services
                     {
                         string mimeType = !string.IsNullOrWhiteSpace(media.MediaType)
                             ? media.MediaType
-                            : FileInputHelper.GetMimeType(media.LocalPath);
+                            : FileInputHelper.GetMimeType(mediaPath);
 
-                        string fileData = FileInputHelper.ToDataUrl(media.LocalPath, mimeType);
+                        string fileData = FileInputHelper.ToDataUrl(mediaPath, mimeType);
 
                         if (!string.IsNullOrWhiteSpace(fileData))
                         {
                             contentParts.Add(new
                             {
                                 type = "input_file",
-                                filename = Path.GetFileName(media.LocalPath),
+                                filename = Path.GetFileName(mediaPath),
                                 file_data = fileData
                             });
                         }

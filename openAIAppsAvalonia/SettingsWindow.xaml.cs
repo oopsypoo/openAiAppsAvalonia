@@ -1,5 +1,7 @@
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
+using openAiAppsAvalonia.Services;
 
 
 namespace openAiAppsAvalonia
@@ -38,7 +40,7 @@ namespace openAiAppsAvalonia
                  }
              }
          }*/
-        private void BrowseAppRoot_Click(object sender, RoutedEventArgs e)
+        private async void BrowseAppRoot_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new Microsoft.Win32.OpenFolderDialog
             {
@@ -50,45 +52,63 @@ namespace openAiAppsAvalonia
             {
                 string selectedPath = dialog.FolderName;
 
-                if (HasWritePermission(selectedPath))
+                if (await HasWritePermissionAsync(selectedPath))
                 {
                     AppRootTextBox.Text = selectedPath;
                     UpdateSubPathsFromAppRoot();
                 }
                 else
                 {
-                    MessageBox.Show("You don't have permission to write to this folder. Please choose a different location (like your Documents folder).",
-                                    "Access Denied", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    await App.Dialogs.ShowMessageAsync(
+                        this,
+                        "Access Denied",
+                        "You don't have permission to write to this folder. Please choose a different location (like your Documents folder).",
+                        DialogSeverity.Warning);
                 }
             }
         }
 
-        private bool HasWritePermission(string folderPath)
+        private async Task<bool> HasWritePermissionAsync(string folderPath)
         {
+            string tempFilePath = Path.Combine(folderPath, Path.GetRandomFileName());
             try
             {
-                // Generate a random temp file name
-                string tempFilePath = Path.Combine(folderPath, Path.GetRandomFileName());
+                await using (var stream = new FileStream(
+                    tempFilePath,
+                    FileMode.CreateNew,
+                    FileAccess.Write,
+                    FileShare.None,
+                    bufferSize: 1,
+                    useAsync: true))
+                {
+                    await stream.FlushAsync();
+                }
 
-                // Try to create and immediately delete it
-                using (FileStream fs = File.Create(tempFilePath)) { }
                 File.Delete(tempFilePath);
-
                 return true;
             }
             catch
             {
+                try
+                {
+                    if (File.Exists(tempFilePath))
+                        File.Delete(tempFilePath);
+                }
+                catch
+                {
+                }
+
                 return false;
             }
         }
 
-        private void BrowseLogs_Click(object sender, RoutedEventArgs e) => BrowseFolder(LogsTextBox);
-        private void BrowseImages_Click(object sender, RoutedEventArgs e) => BrowseFolder(ImagesTextBox);
+        private async void BrowseLogs_Click(object sender, RoutedEventArgs e) => await BrowseFolderAsync(LogsTextBox);
+        private async void BrowseImages_Click(object sender, RoutedEventArgs e) => await BrowseFolderAsync(ImagesTextBox);
         /// <summary>
         /// Opens a folder browser dialog to select a folder for the given TextBox. It checks if the application has write permission to the selected folder before updating the TextBox.
         /// </summary>
         /// <param name="textBox"></param>
-        private void BrowseFolder(System.Windows.Controls.TextBox textBox)
+        private async Task BrowseFolderAsync(System.Windows.Controls.TextBox textBox)
         {
             var dialog = new Microsoft.Win32.OpenFolderDialog
             {
@@ -100,14 +120,17 @@ namespace openAiAppsAvalonia
             {
                 string folder = dialog.FolderName;
 
-                if (HasWritePermission(folder))
+                if (await HasWritePermissionAsync(folder))
                 {
                     textBox.Text = folder;
                 }
                 else
                 {
-                    MessageBox.Show("The application does not have permission to write to this folder. Please select a different location.",
-                                    "Permission Denied", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    await App.Dialogs.ShowMessageAsync(
+                        this,
+                        "Permission Denied",
+                        "The application does not have permission to write to this folder. Please select a different location.",
+                        DialogSeverity.Warning);
                 }
             }
         }

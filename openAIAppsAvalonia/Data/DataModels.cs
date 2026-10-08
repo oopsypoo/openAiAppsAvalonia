@@ -104,7 +104,7 @@ namespace openAiAppsAvalonia.Data
         public virtual ChatMessage ChatMessage { get; set; }
 
         [NotMapped]
-        public string FileName => Path.GetFileName(LocalPath ?? string.Empty);
+        public string FileName => Path.GetFileName((LocalPath ?? string.Empty).Replace('\\', '/'));
 
         [NotMapped]
         public bool IsImage =>

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using openAiAppsAvalonia.Data;
 
 namespace openAiAppsAvalonia.Services
 {
@@ -20,7 +21,9 @@ namespace openAiAppsAvalonia.Services
 
         public void SetImagesFolder(string imagesFolder)
         {
-            _imagesFolder = imagesFolder ?? string.Empty;
+            _imagesFolder = string.IsNullOrWhiteSpace(imagesFolder)
+                ? string.Empty
+                : Path.GetFullPath(imagesFolder);
 
             if (!string.IsNullOrWhiteSpace(_imagesFolder))
             {
@@ -32,7 +35,7 @@ namespace openAiAppsAvalonia.Services
         {
             if (string.IsNullOrWhiteSpace(_imagesFolder))
             {
-                _imagesFolder = Path.Combine(AppContext.BaseDirectory, "Images");
+                _imagesFolder = AppPaths.ImagesDirectory;
             }
 
             Directory.CreateDirectory(_imagesFolder);
@@ -96,7 +99,7 @@ namespace openAiAppsAvalonia.Services
 
                     if (!string.IsNullOrWhiteSpace(filePath))
                     {
-                        savedPaths.Add(filePath);
+                        savedPaths.Add(ToStoredMediaPath(filePath));
                     }
                 }
                 catch
@@ -144,9 +147,10 @@ namespace openAiAppsAvalonia.Services
             {
                 try
                 {
-                    if (File.Exists(path))
+                    string resolvedPath = ResolveMediaPath(path);
+                    if (File.Exists(resolvedPath))
                     {
-                        File.Delete(path);
+                        File.Delete(resolvedPath);
                     }
                 }
                 catch
@@ -186,12 +190,104 @@ namespace openAiAppsAvalonia.Services
                     $"user_{DateTime.UtcNow:yyyyMMdd_HHmmss_fff}_{originalName}");
 
                 File.Copy(sourceFilePath, destinationPath, overwrite: false);
-                return destinationPath;
+                return ToStoredMediaPath(destinationPath);
             }
             catch
             {
                 return null;
             }
+        }
+
+        public string ResolveMediaPath(string storedPath)
+        {
+            if (string.IsNullOrWhiteSpace(storedPath))
+                return null;
+
+            if (Path.IsPathRooted(storedPath) || IsWindowsAbsolutePath(storedPath))
+            {
+                if (File.Exists(storedPath))
+                    return storedPath;
+            }
+
+            string fileName = GetPortableFileName(storedPath);
+            if (string.IsNullOrWhiteSpace(fileName))
+                return storedPath;
+
+            string managedPath = Path.Combine(EnsureImagesFolder(), fileName);
+            if (File.Exists(managedPath))
+                return managedPath;
+
+            if (Path.IsPathRooted(storedPath) || IsWindowsAbsolutePath(storedPath))
+                return storedPath;
+
+            return managedPath;
+        }
+
+        public int MigrateLegacyMediaPaths()
+        {
+            using var context = new AppDbContext();
+            var mediaFiles = context.Media.ToList();
+            int migratedCount = 0;
+
+            foreach (var media in mediaFiles)
+            {
+                string oldPath = media.LocalPath;
+                if (string.IsNullOrWhiteSpace(oldPath) ||
+                    oldPath.StartsWith("media/", StringComparison.OrdinalIgnoreCase) ||
+                    (!Path.IsPathRooted(oldPath) && !IsWindowsAbsolutePath(oldPath)))
+                {
+                    continue;
+                }
+
+                string sourcePath = ResolveMediaPath(oldPath);
+                if (!File.Exists(sourcePath))
+                    continue;
+
+                string storedPath = IsInImagesFolder(sourcePath)
+                    ? ToStoredMediaPath(sourcePath)
+                    : ImportUserFile(sourcePath);
+
+                if (!string.IsNullOrWhiteSpace(storedPath) &&
+                    !string.Equals(oldPath, storedPath, StringComparison.Ordinal))
+                {
+                    media.LocalPath = storedPath;
+                    migratedCount++;
+                }
+            }
+
+            if (migratedCount > 0)
+                context.SaveChanges();
+
+            return migratedCount;
+        }
+
+        private bool IsInImagesFolder(string path)
+        {
+            string root = EnsureImagesFolder().TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                + Path.DirectorySeparatorChar;
+            string fullPath = Path.GetFullPath(path);
+            StringComparison comparison = OperatingSystem.IsWindows()
+                ? StringComparison.OrdinalIgnoreCase
+                : StringComparison.Ordinal;
+            return fullPath.StartsWith(root, comparison);
+        }
+
+        private static string ToStoredMediaPath(string fullPath)
+        {
+            return "media/" + Path.GetFileName(fullPath);
+        }
+
+        private static string GetPortableFileName(string path)
+        {
+            string normalized = path.Replace('\\', '/');
+            int lastSeparator = normalized.LastIndexOf('/');
+            return lastSeparator >= 0 ? normalized.Substring(lastSeparator + 1) : normalized;
+        }
+
+        private static bool IsWindowsAbsolutePath(string path)
+        {
+            return path.Length >= 3 && char.IsLetter(path[0]) && path[1] == ':' &&
+                   (path[2] == '\\' || path[2] == '/');
         }
     }
 }

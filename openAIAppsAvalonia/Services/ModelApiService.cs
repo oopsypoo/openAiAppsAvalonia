@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using openAiAppsAvalonia.Services;
 
 namespace openAiAppsAvalonia
 {
@@ -60,45 +61,55 @@ namespace openAiAppsAvalonia
     }
     public static class AvailableModelsStorage
     {
-        private const string FileName = "available_models.txt";
-
-        public static string FilePath =>
-            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, FileName);
+        public static string FilePath => AppPaths.ModelsFilePath;
 
         public static bool Exists()
         {
-            return File.Exists(FilePath);
+            return File.Exists(FilePath) || File.Exists(AppPaths.LegacyModelsFilePath);
         }
 
         public static List<string> Load()
         {
-            if (!File.Exists(FilePath))
-                return new List<string>();
+            AppPaths.EnsureDataDirectory();
 
-            return File.ReadAllLines(FilePath)
-                .Where(x => !string.IsNullOrWhiteSpace(x))
-                .Select(x => x.Trim())
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
-                .ToList();
+            if (!File.Exists(FilePath))
+            {
+                if (!File.Exists(AppPaths.LegacyModelsFilePath))
+                    return new List<string>();
+
+                var legacyModels = Normalize(File.ReadAllLines(AppPaths.LegacyModelsFilePath));
+                Save(legacyModels);
+                return legacyModels;
+            }
+
+            return Normalize(JsonSerializer.Deserialize<List<string>>(File.ReadAllText(FilePath)) ?? new List<string>());
         }
 
         public static void Save(IEnumerable<string> models)
         {
-            var list = models
+            var list = Normalize(models);
+
+            AppPaths.EnsureDataDirectory();
+            File.WriteAllText(FilePath, JsonSerializer.Serialize(list, new JsonSerializerOptions { WriteIndented = true }));
+        }
+
+        private static List<string> Normalize(IEnumerable<string> models)
+        {
+            return models
                 .Where(x => !string.IsNullOrWhiteSpace(x))
                 .Select(x => x.Trim())
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
                 .ToList();
-
-            File.WriteAllLines(FilePath, list);
         }
 
         public static void Delete()
         {
             if (File.Exists(FilePath))
                 File.Delete(FilePath);
+
+            if (File.Exists(AppPaths.LegacyModelsFilePath))
+                File.Delete(AppPaths.LegacyModelsFilePath);
         }
 
         public static bool HasContent()

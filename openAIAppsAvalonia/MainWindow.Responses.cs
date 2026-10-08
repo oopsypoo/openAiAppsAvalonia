@@ -188,37 +188,34 @@ namespace openAiAppsAvalonia
 
         private string GetPrimaryAttachmentPath(ChatMessage message)
         {
-            return message?.MediaFiles?
-                .FirstOrDefault(m => !string.IsNullOrWhiteSpace(m.LocalPath))
-                ?.LocalPath;
+            var media = message?.MediaFiles?.FirstOrDefault(m => !string.IsNullOrWhiteSpace(m.LocalPath));
+            return media == null ? null : _mediaStorageService.ResolveMediaPath(media.LocalPath);
         }
 
-        private static bool IsImageMediaFile(MediaFile media)
+        private bool IsImageMediaFile(MediaFile media)
         {
+            string path = _mediaStorageService.ResolveMediaPath(media?.LocalPath);
             return media != null &&
-                   !string.IsNullOrWhiteSpace(media.LocalPath) &&
-                   File.Exists(media.LocalPath) &&
+                   !string.IsNullOrWhiteSpace(path) &&
+                   File.Exists(path) &&
                    !string.IsNullOrWhiteSpace(media.MediaType) &&
                    media.MediaType.StartsWith("image/", StringComparison.OrdinalIgnoreCase);
         }
 
         private string GetPrimaryImagePath(ChatMessage message)
         {
-            return message?.MediaFiles?
-                .FirstOrDefault(IsImageMediaFile)?
-                .LocalPath;
+            var media = message?.MediaFiles?.FirstOrDefault(IsImageMediaFile);
+            return media == null ? null : _mediaStorageService.ResolveMediaPath(media.LocalPath);
         }
 
         private List<MediaFile> GetImageMediaFiles(ChatMessage message)
         {
-            return message?.MediaFiles?
-                .Where(IsImageMediaFile)
-                .ToList()
-                ?? new List<MediaFile>();
+            return message?.MediaFiles?.Where(IsImageMediaFile).ToList() ?? new List<MediaFile>();
         }
 
         private void ShowResponsesImagePreview(string path)
         {
+            path = _mediaStorageService.ResolveMediaPath(path);
             if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
             {
                 HideResponsesImagePreview();
@@ -304,7 +301,7 @@ namespace openAiAppsAvalonia
             MediaFile selected =
                 !string.IsNullOrWhiteSpace(preferredPath)
                     ? images.FirstOrDefault(m =>
-                        string.Equals(m.LocalPath, preferredPath, StringComparison.OrdinalIgnoreCase))
+                        string.Equals(_mediaStorageService.ResolveMediaPath(m.LocalPath), preferredPath, StringComparison.OrdinalIgnoreCase))
                     : null;
 
             selected ??= images[0];
@@ -312,7 +309,7 @@ namespace openAiAppsAvalonia
             if (lstResponsesImages != null)
                 lstResponsesImages.SelectedItem = selected;
 
-            ShowResponsesImagePreview(selected.LocalPath);
+            ShowResponsesImagePreview(_mediaStorageService.ResolveMediaPath(selected.LocalPath));
             UpdateResponsesPreviewInfo();
         }
 
@@ -514,7 +511,7 @@ namespace openAiAppsAvalonia
             }
         }
 
-        private void OpenLocalFile(string path, string caption)
+        private async Task OpenLocalFileAsync(string path, string caption)
         {
             if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
                 return;
@@ -529,19 +526,20 @@ namespace openAiAppsAvalonia
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show($"Could not open {caption}:\n{ex.Message}",
+                await App.Dialogs.ShowMessageAsync(
+                    this,
                     "Error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                    $"Could not open {caption}:\n{ex.Message}",
+                    DialogSeverity.Error);
             }
         }
         private string GetCurrentPreviewImagePath()
         {
             if (lstResponsesImages?.SelectedItem is MediaFile selected &&
                 !string.IsNullOrWhiteSpace(selected.LocalPath) &&
-                File.Exists(selected.LocalPath))
+                File.Exists(_mediaStorageService.ResolveMediaPath(selected.LocalPath)))
             {
-                return selected.LocalPath;
+                return _mediaStorageService.ResolveMediaPath(selected.LocalPath);
             }
 
             if (!string.IsNullOrWhiteSpace(_responsesPreviewImagePath) &&
@@ -699,7 +697,11 @@ namespace openAiAppsAvalonia
                 catch (Exception ex)
                 {
                     _appStatus.Set("Error: " + ex.Message);
-                    MessageBox.Show($"Execution Error: {ex.Message}");
+                    await App.Dialogs.ShowMessageAsync(
+                        this,
+                        "Execution Error",
+                        ex.Message,
+                        DialogSeverity.Error);
                 }
                 finally
                 {
@@ -734,13 +736,12 @@ namespace openAiAppsAvalonia
             if (ResponsesState.SelectedTurn is not ChatMessage selectedTurn)
                 return;
 
-            var confirm = MessageBox.Show(
-                "Delete the currently selected turn?",
+            bool confirm = await App.Dialogs.ConfirmAsync(
+                this,
                 "Confirm",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning);
+                "Delete the currently selected turn?");
 
-            if (confirm != MessageBoxResult.Yes)
+            if (!confirm)
                 return;
 
             _appStatus.Set("Deleting current turn...");
@@ -796,10 +797,11 @@ namespace openAiAppsAvalonia
             if (lstResponsesImages.SelectedItem is not MediaFile selectedImage)
                 return;
 
-            if (string.IsNullOrWhiteSpace(selectedImage.LocalPath) || !File.Exists(selectedImage.LocalPath))
+            string imagePath = _mediaStorageService.ResolveMediaPath(selectedImage.LocalPath);
+            if (string.IsNullOrWhiteSpace(imagePath) || !File.Exists(imagePath))
                 return;
 
-            ShowResponsesImagePreview(selectedImage.LocalPath);
+            ShowResponsesImagePreview(imagePath);
             UpdateResponsesPreviewInfo();
         }
 
@@ -828,7 +830,7 @@ namespace openAiAppsAvalonia
         //Does it make sense do double-click inside the chat-history.
         //Double-clicking on the preview-image is logical...here maybe not so.
         //REMOVE or NOT? test first
-        private void lstResponsesTurns_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private async void lstResponsesTurns_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             if (lstResponsesTurns.SelectedItem is not ChatMessage message)
                 return;
@@ -849,12 +851,11 @@ namespace openAiAppsAvalonia
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Could not open image:\n{ex.Message}", "Error",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                await App.Dialogs.ShowMessageAsync(this, "Error", $"Could not open image:\n{ex.Message}", DialogSeverity.Error);
             }
         }
 
-        private void imgResponsesPreview_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private async void imgResponsesPreview_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ClickCount < 2)
                 return;
@@ -873,13 +874,12 @@ namespace openAiAppsAvalonia
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Could not open image:\n{ex.Message}", "Error",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                await App.Dialogs.ShowMessageAsync(this, "Error", $"Could not open image:\n{ex.Message}", DialogSeverity.Error);
             }
         }
 
 
-        private void MenuItemImageOpen_Click(object sender, RoutedEventArgs e)
+        private async void MenuItemImageOpen_Click(object sender, RoutedEventArgs e)
         {
             var path = GetCurrentPreviewImagePath();
             if (path == null) return;
@@ -895,8 +895,7 @@ namespace openAiAppsAvalonia
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Could not open image:\n{ex.Message}", "Error",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                await App.Dialogs.ShowMessageAsync(this, "Error", $"Could not open image:\n{ex.Message}", DialogSeverity.Error);
             }
         }
         /// <summary>
@@ -908,13 +907,12 @@ namespace openAiAppsAvalonia
         /// error message is displayed to the user.</remarks>
         /// <param name="sender">The source of the event, typically the menu item that was clicked.</param>
         /// <param name="e">The event data associated with the click event.</param>
-        private void MenuItemImageOpenWith_Click(object sender, RoutedEventArgs e)
+        private async void MenuItemImageOpenWith_Click(object sender, RoutedEventArgs e)
         {
             var path = GetCurrentPreviewImagePath();
             if (string.IsNullOrEmpty(path) || !File.Exists(path))
             {
-                MessageBox.Show("No image selected or file not found.", "Open with",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
+                await App.Dialogs.ShowMessageAsync(this, "Open with", "No image selected or file not found.");
                 return;
             }
 
@@ -924,8 +922,7 @@ namespace openAiAppsAvalonia
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Could not show Open with dialog:\n{ex.Message}", "Error",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                await App.Dialogs.ShowMessageAsync(this, "Error", $"Could not show Open with dialog:\n{ex.Message}", DialogSeverity.Error);
             }
         }
         private static bool HasResponsesSettings(ChatMessage message)
@@ -1463,12 +1460,12 @@ namespace openAiAppsAvalonia
             }
         }
 
-        private void btnResponsesOpenPendingAttachment_Click(object sender, RoutedEventArgs e)
+        private async void btnResponsesOpenPendingAttachment_Click(object sender, RoutedEventArgs e)
         {
             if ((sender as FrameworkElement)?.DataContext is not ResponseAttachmentItem item)
                 return;
 
-            OpenLocalFile(item.LocalPath, "attachment");
+            await OpenLocalFileAsync(item.LocalPath, "attachment");
         }
 
         private void lstResponsesPendingAttachments_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -1490,14 +1487,11 @@ namespace openAiAppsAvalonia
                 RefreshEnvironmentCapabilityReport();
         }
 
-        private void btnDeveloperEnvironmentReport_Click(object sender, RoutedEventArgs e)
+        private async void btnDeveloperEnvironmentReport_Click(object sender, RoutedEventArgs e)
         {
             RefreshEnvironmentCapabilityReport();
-            var reportWindow = new EnvironmentReportWindow(_environmentCapabilityReport)
-            {
-                Owner = this
-            };
-            reportWindow.ShowDialog();
+            var reportWindow = new EnvironmentReportWindow(_environmentCapabilityReport);
+            await App.Dialogs.ShowModalAsync(this, reportWindow);
         }
 
         private void RefreshEnvironmentCapabilityReport()
@@ -1578,13 +1572,10 @@ namespace openAiAppsAvalonia
                 $"Tool: {toolName}\n\n" +
                 $"Arguments:\n{argumentsJson}";
 
-            var result = MessageBox.Show(
-                message,
+            return await App.Dialogs.ConfirmAsync(
+                this,
                 "Confirm local developer tool call",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Question);
-
-            return result == MessageBoxResult.Yes;
+                message);
         }
 
         private async Task<bool> ShowPendingToolReviewAsync(string toolName, string argumentsJson)

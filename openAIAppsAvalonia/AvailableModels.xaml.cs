@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using openAiAppsAvalonia.Services;
 
 namespace openAiAppsAvalonia
 {
@@ -219,30 +220,30 @@ namespace openAiAppsAvalonia
             RefreshAll();
         }
 
-        private void Button_UseNow_Click(object sender, RoutedEventArgs e)
+        private async void Button_UseNow_Click(object sender, RoutedEventArgs e)
         {
             List<string> modelsToUse = GetSelectedModelsFromRightList();
 
             if (modelsToUse.Count == 0)
             {
-                MessageBox.Show(
-                    "There are no selected models to use.",
+                await App.Dialogs.ShowMessageAsync(
+                    this,
                     "Nothing to Use",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
+                    "There are no selected models to use.",
+                    DialogSeverity.Information);
                 return;
             }
 
             ModelsApplied?.Invoke(modelsToUse);
 
-            MessageBox.Show(
-                $"{modelsToUse.Count} model(s) applied to the responses UI.",
+            await App.Dialogs.ShowMessageAsync(
+                this,
                 "Models Applied",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
+                $"{modelsToUse.Count} model(s) applied to the responses UI.",
+                DialogSeverity.Information);
         }
 
-        private void Button_Save_model_list(object sender, RoutedEventArgs e)
+        private async void Button_Save_model_list(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -250,11 +251,11 @@ namespace openAiAppsAvalonia
 
                 if (modelsToSave.Count == 0)
                 {
-                    MessageBox.Show(
-                        "There are no selected models to save.\nUse Delete if you want to remove the saved file.",
+                    await App.Dialogs.ShowMessageAsync(
+                        this,
                         "Nothing to Save",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Information);
+                        "There are no selected models to save.\nUse Delete if you want to remove the saved file.",
+                        DialogSeverity.Information);
                     return;
                 }
 
@@ -263,31 +264,30 @@ namespace openAiAppsAvalonia
                 // Also apply immediately
                 ModelsApplied?.Invoke(modelsToSave);
 
-                MessageBox.Show(
-                    $"Saved {modelsToSave.Count} model(s) to:\n{AvailableModelsStorage.FilePath}",
+                await App.Dialogs.ShowMessageAsync(
+                    this,
                     "Saved",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
+                    $"Saved {modelsToSave.Count} model(s) to:\n{AvailableModelsStorage.FilePath}",
+                    DialogSeverity.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    $"Could not save model list:\n\n{ex.Message}",
+                await App.Dialogs.ShowMessageAsync(
+                    this,
                     "Save Error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                    $"Could not save model list:\n\n{ex.Message}",
+                    DialogSeverity.Error);
             }
         }
 
-        private void Button_Delete_model_list(object sender, RoutedEventArgs e)
+        private async void Button_Delete_model_list(object sender, RoutedEventArgs e)
         {
-            MessageBoxResult result = MessageBox.Show(
-                "Delete the saved model list file and clear the selected list?",
+            bool result = await App.Dialogs.ConfirmAsync(
+                this,
                 "Delete Saved List",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning);
+                "Delete the saved model list file and clear the selected list?");
 
-            if (result != MessageBoxResult.Yes)
+            if (!result)
                 return;
 
             try
@@ -297,19 +297,19 @@ namespace openAiAppsAvalonia
                 _selectedModels.Clear();
                 RefreshAll();
 
-                MessageBox.Show(
-                    "The saved model list was deleted.",
+                await App.Dialogs.ShowMessageAsync(
+                    this,
                     "Deleted",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
+                    "The saved model list was deleted.",
+                    DialogSeverity.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    $"Could not delete the saved model list:\n\n{ex.Message}",
+                await App.Dialogs.ShowMessageAsync(
+                    this,
                     "Delete Error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                    $"Could not delete the saved model list:\n\n{ex.Message}",
+                    DialogSeverity.Error);
             }
         }
 

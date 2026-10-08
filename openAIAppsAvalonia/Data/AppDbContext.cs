@@ -1,13 +1,14 @@
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.IO;
+using openAiAppsAvalonia.Services;
 
 namespace openAiAppsAvalonia.Data
 {
     public class AppDbContext : DbContext
     {
         public static string DatabaseFilePath { get; set; } =
-            Path.Combine(AppContext.BaseDirectory, "localhistory.db");
+            AppPaths.DatabaseFilePath;
 
         public DbSet<ChatSession> Sessions { get; set; }
         public DbSet<ChatMessage> Messages { get; set; }
@@ -61,6 +62,22 @@ namespace openAiAppsAvalonia.Data
 
         public static void InitializeDatabase()
         {
+            AppPaths.EnsureDataDirectory();
+
+            if (!File.Exists(DatabaseFilePath) && File.Exists(AppPaths.LegacyDatabaseFilePath))
+            {
+                File.Copy(AppPaths.LegacyDatabaseFilePath, DatabaseFilePath);
+
+                foreach (string suffix in new[] { "-wal", "-shm" })
+                {
+                    string legacySidecar = AppPaths.LegacyDatabaseFilePath + suffix;
+                    if (File.Exists(legacySidecar))
+                    {
+                        File.Copy(legacySidecar, DatabaseFilePath + suffix);
+                    }
+                }
+            }
+
             string folder = Path.GetDirectoryName(DatabaseFilePath);
             if (!string.IsNullOrWhiteSpace(folder))
             {

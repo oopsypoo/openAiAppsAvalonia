@@ -168,6 +168,7 @@ namespace openAiAppsAvalonia
         {
             InitStatusAnimation();
             await InitResponsesControlsAsync();
+            await Task.Run(() => _mediaStorageService.MigrateLegacyMediaPaths());
             MoveFocus(new TraversalRequest(FocusNavigationDirection.First));
             ApplyLogColumnVisibility();
             LoadInitialLogs();
@@ -226,8 +227,8 @@ namespace openAiAppsAvalonia
                 text => StatusText.Text = text ?? string.Empty
             );
             AppDbContext.InitializeDatabase();
-            _historyService = new HistoryService();
             _mediaStorageService = new MediaStorageService();
+            _historyService = new HistoryService(_mediaStorageService);
             _sessionCleanupService = new SessionCleanupService(_historyService, _mediaStorageService);
 
             LogView = CollectionViewSource.GetDefaultView(LogRows);
@@ -251,10 +252,10 @@ namespace openAiAppsAvalonia
         {
         }
 
-        private void menuAbout_Click(object sender, RoutedEventArgs e)
+        private async void menuAbout_Click(object sender, RoutedEventArgs e)
         {
             About about = new About();
-            about.ShowDialog();
+            await App.Dialogs.ShowModalAsync(this, about);
         }
 
         private void menuFile_Click(object sender, RoutedEventArgs e)
@@ -334,10 +335,10 @@ namespace openAiAppsAvalonia
             }
         }
 
-        private void menuSettings_Click(object sender, RoutedEventArgs e)
+        private async void menuSettings_Click(object sender, RoutedEventArgs e)
         {
             var window = new SettingsWindow(_settings);
-            bool? result = window.ShowDialog();
+            bool? result = await App.Dialogs.ShowModalForResultAsync(this, window);
             if (result == true)
             {
                 EnsureSavePaths();
@@ -506,13 +507,12 @@ namespace openAiAppsAvalonia
             if (session == null || row == null)
                 return;
 
-            var confirm = MessageBox.Show(
-                $"Permanently delete '{session.Title}'?",
+            bool confirm = await App.Dialogs.ConfirmAsync(
+                this,
                 "Confirm Delete",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning);
+                $"Permanently delete '{session.Title}'?");
 
-            if (confirm != MessageBoxResult.Yes)
+            if (!confirm)
                 return;
 
             await _sessionCleanupService.DeleteSessionAsync(session.Id);
@@ -583,11 +583,11 @@ namespace openAiAppsAvalonia
             var selectedRow = LogsState.SelectedLogRow;
             if (selectedRow?.Session == null)
             {
-                MessageBox.Show(
-                    "Select a log row first.",
+                await App.Dialogs.ShowMessageAsync(
+                    this,
                     "Export",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
+                    "Select a log row first.",
+                    DialogSeverity.Information);
                 return;
             }
 
