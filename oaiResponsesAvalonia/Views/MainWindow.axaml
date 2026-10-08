@@ -204,19 +204,21 @@
 
         <Menu Grid.Row="0" Height="18" IsEnabled="True">
             <MenuItem Header="File" Name="menuFile" IsEnabled="True">
-                <MenuItem Header="Settings" x:Name="menuSettings" IsEnabled="True"/>
-                <MenuItem Header="Exit" Name="menuExit" IsEnabled="True" />
+                <MenuItem Header="Settings" x:Name="menuSettings" IsEnabled="True" Click="menuSettings_Click"/>
+                <MenuItem Header="Exit" Name="menuExit" IsEnabled="True" Click="menuExit_Click" />
             </MenuItem>
             <MenuItem Header="Tools" Name="menuTools" IsEnabled="True">
-                <MenuItem Header="Available Models" Name="menuAvlblMdls" IsEnabled="True" />
+                <MenuItem Header="Available Models" Name="menuAvlblMdls" IsEnabled="True" Click="menuAvailableModels_Click" />
             </MenuItem>
             <MenuItem Header="Help" Name="menuHelp" IsEnabled="True">
-                <MenuItem Header="About" Name="menuAbout" IsEnabled="True"/>
+                <MenuItem Header="About" Name="menuAbout" IsEnabled="True" Click="menuAbout_Click"/>
             </MenuItem>
         </Menu>
         <TabControl Grid.Row="1"
                 Background="Azure"
                 x:Name="tabMain"
+                Loaded="MainWindow_Loaded"
+                SelectionChanged="tabMain_SelectionChanged"
                 HorizontalContentAlignment="Stretch"
                 VerticalContentAlignment="Stretch"
                 >
@@ -271,6 +273,7 @@
                                             Margin="6,0,0,0"
                                             Padding="5,2"
                                             Content="Attach files"
+                                            Click="btnResponsesAttachFiles_Click"
                                             />
 
                                         <Button Grid.Column="2"
@@ -278,6 +281,7 @@
                                             Margin="6,0,0,0"
                                             Padding="5,2"
                                             Content="Clear all"
+                                            Click="btnResponsesClearAttachments_Click"
                                             />
                                     </Grid>
 
@@ -289,6 +293,7 @@
                                     <Button DockPanel.Dock="Bottom"
                                     x:Name="btnResponsesSendRequest"
                                     Classes="SendRequest"
+                                    Click="btnResponsesSendRequestClick"
                                     />
                                     
                                     <!-- Attachments -->
@@ -308,6 +313,7 @@
                                             <ListBox x:Name="lstResponsesPendingAttachments"
                                                  MaxHeight="120"
                                                  ItemsSource="{Binding PendingResponseAttachments, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                 SelectionChanged="lstResponsesPendingAttachments_SelectionChanged"
                                                  >
                                                 <ListBox.ItemTemplate>
                                                     <DataTemplate>
@@ -317,10 +323,12 @@
                                                                 <Button Content="Open"
                                                                     Margin="6,0,0,0"
                                                                     Padding="8,2"
+                                                                    Click="btnResponsesOpenPendingAttachment_Click"
                                                                     />
                                                                 <Button Content="Remove"
                                                                     Margin="6,0,0,0"
                                                                     Padding="8,2"
+                                                                    Click="btnResponsesRemovePendingAttachment_Click"
                                                                     />
                                                             </StackPanel>
 
@@ -339,7 +347,7 @@
                                     </Border>
 
                                     <!-- Main prompt content -->
-                                    <Grid>
+                                    <Grid x:Name="gridResponsesPromptImage">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="0" />
@@ -384,9 +392,9 @@
                                        >
                                                     <Image.ContextMenu>
                                                         <ContextMenu x:Name="ctxImagePreview">
-                                                            <MenuItem Header="Open"/>
+                                                            <MenuItem Header="Open" Click="MenuItemImageOpen_Click"/>
                                                             <Separator/>
-                                                            <MenuItem Header="Open with" />
+                                                            <MenuItem Header="Open with" Click="MenuItemImageOpenWith_Click" />
                                                         </ContextMenu>
                                                     </Image.ContextMenu>
                                                 </Image>
@@ -400,6 +408,7 @@
                                                 <ListBox Grid.Row="4"
                                          x:Name="lstResponsesImages"
                                          ItemsSource="{Binding ResponsePreviewImages, RelativeSource={RelativeSource AncestorType=Window}}"
+                                         SelectionChanged="lstResponsesImages_SelectionChanged"
                                          >
                                                     <ListBox.ItemTemplate>
                                                         <DataTemplate>
@@ -444,6 +453,7 @@
                                                 BorderThickness="1">
                                             <ComboBox x:Name="cmbResponsesMarkdownTheme"
                                                       Width="180"
+                                                      SelectionChanged="cmbResponsesMarkdownTheme_SelectionChanged"
                                                       />
                                         </Border>
                                     </Expander>
@@ -460,6 +470,7 @@
                                                 BorderThickness="1">
                                             <ComboBox x:Name="cmbResponsesPageTheme"
                                                       Width="180"
+                                                      SelectionChanged="cmbResponsesPageTheme_SelectionChanged"
                                                       />
                                         </Border>
                                     </Expander>
@@ -808,6 +819,7 @@
                                                     Padding="6,1"
                                                     Content="Environment report"
                                                     IsEnabled="{Binding ResponsesState.UseDeveloperTools, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    Click="btnDeveloperEnvironmentReport_Click"
                                                     />
 
                                             <Grid Grid.Row="1"
@@ -829,8 +841,10 @@
                                                     <Button Content="Browse"
                                                             Width="70"
                                                             Margin="0,0,6,0"
+                                                            Click="btnDeveloperBrowseRoot_Click"
                                                             />
                                                     <TextBox Text="{Binding ResponsesState.DeveloperRepositoryRoot, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                             LostFocus="txtDeveloperWorkspaceRoot_LostFocus"
                                                              />
                                                 </DockPanel>
 
@@ -897,6 +911,7 @@
                                                 <Button Content="Stop all Developer Tools applications"
                                                         Margin="0,6,0,0"
                                                          ToolTip.Tip="Stops applications that were launched by the Run .NET project tool in this application instance."
+                                                         Click="btnDeveloperStopAllProcesses_Click"
                                                         />
                                                 </StackPanel>
                                             </Grid>
@@ -911,6 +926,7 @@
                                         Margin="0,8,0,0"
                                         Padding="5,2"
                                         Content="New Conversation"
+                                        Click="btnResponsesNewChat_Click"
                                         />
 
                                 <ListBox Grid.Row="7"
@@ -920,6 +936,8 @@
                                          Margin="0,8,0,0"
                                          ItemsSource="{Binding CurrentChatMessages, RelativeSource={RelativeSource AncestorType=Window}}"
                                          SelectedItem="{Binding ResponsesState.SelectedTurn, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}"
+                                         SelectionChanged="lstResponsesTurns_SelectionChanged"
+                                         DoubleTapped="lstResponsesTurns_MouseDoubleClick"
                                          >
                                     <ListBox.ItemTemplate>
                                         <DataTemplate>
@@ -973,6 +991,7 @@
                                         Margin="0,8,0,0"
                                         Padding="5,2"
                                         Content="Remove Current Turn"
+                                        Click="btnResponsesDeleteChat_Click"
                                         />
                                 <Expander Grid.Row="9"
                                           Margin="0,8,0,0"
@@ -1064,6 +1083,7 @@
                                    Margin="0,0,5,0"/>
 
                         <ComboBox x:Name="cbLogTypeFilter"
+                                  SelectionChanged="cbLogTypeFilter_SelectionChanged"
                                   Width="120"
                                   SelectedValue="{Binding LogsState.TypeFilter, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}">
                             <ComboBoxItem Content="All" Tag="All"/>
@@ -1103,12 +1123,11 @@
                         <Menu Margin="10,0,0,0"
                               VerticalAlignment="Center">
                             <MenuItem Header="Export">
-                                <MenuItem Header="Markdown (.md)"
-                                          />
+                                <MenuItem Header="Markdown (.md)" Click="OnExportLogMarkdownClick"/>
                                 <MenuItem Header="Text (.txt)"
-                                          />
+                                          Click="OnExportLogTextClick"/>
                                 <MenuItem Header="HTML (.html)"
-                                          />
+                                          Click="OnExportLogHtmlClick"/>
                             </MenuItem>
                         </Menu>
                     </StackPanel>
@@ -1120,6 +1139,7 @@
                               AutoGenerateColumns="False"
                               IsReadOnly="True"
                               SelectionMode="Single"
+                              DoubleTapped="OnLogEntryDoubleTapped"
                               >
 
                         <DataGrid.Columns>
@@ -1167,7 +1187,7 @@
                                                 Height="28"
                                                 FontSize="15"
                                                 Classes="DeleteButtonStyle"
-                                                CommandParameter="{Binding}"
+                                                Click="OnDeleteSessionClick"
                                                 ToolTip.Tip="{Binding Title, StringFormat=Delete {0}}"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
