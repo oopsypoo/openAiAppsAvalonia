@@ -30,6 +30,7 @@ namespace oaiResponsesAvalonia.Views
         private bool _isApplyingResponsesSettings;
         private bool _responsesWebViewInitialized;
         private bool _responsesViewerPageLoaded;
+        private Task? _responsesViewerPageLoadTask;
         private EnvironmentCapabilityReport _environmentCapabilityReport = new EnvironmentCapabilityReport(string.Empty, null);
 
         private bool _bindingMarkdownThemeOptions;
@@ -2051,6 +2052,22 @@ The assistant wants to replace text in an existing file.
             if (_responsesViewerPageLoaded)
                 return;
 
+            Task loadTask = _responsesViewerPageLoadTask ??= LoadResponsesViewerPageAsync();
+
+            try
+            {
+                await loadTask;
+            }
+            catch
+            {
+                if (ReferenceEquals(_responsesViewerPageLoadTask, loadTask))
+                    _responsesViewerPageLoadTask = null;
+                throw;
+            }
+        }
+
+        private async Task LoadResponsesViewerPageAsync()
+        {
             var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
             void Handler(object? sender, WebViewNavigationCompletedEventArgs e)
@@ -2072,18 +2089,15 @@ The assistant wants to replace text in an existing file.
             if (!await tcs.Task)
                 throw new InvalidOperationException("The Markdown viewer page could not be loaded.");
 
-            _responsesViewerPageLoaded = true;
-
             await wvResponsesResponse.InvokeScript(
                 "window.chrome = window.chrome || {}; window.chrome.webview = window.chrome.webview || {}; window.chrome.webview.postMessage = window.invokeCSharpAction;");
+
+            _responsesViewerPageLoaded = true;
         }
         private void ResponsesWebView_NavigationStarted(object? sender, WebViewNavigationStartingEventArgs e)
         {
             Uri? uri = e.Request;
             if (uri is null)
-                return;
-
-            if (uri.IsFile)
                 return;
 
             bool isExternalLink =
@@ -2092,7 +2106,15 @@ The assistant wants to replace text in an existing file.
                 uri.Scheme.Equals("mailto", StringComparison.OrdinalIgnoreCase);
 
             if (!isExternalLink)
+            {
+                // The loaded flag describes the current WebView document, not just
+                // whether the viewer was loaded once. A later in-app navigation
+                // invalidates it so the next render waits for a usable page.
+                _responsesViewerPageLoaded = false;
+                if (_responsesViewerPageLoadTask?.IsCompleted == true)
+                    _responsesViewerPageLoadTask = null;
                 return;
+            }
 
             e.Cancel = true;
 
@@ -2164,6 +2186,28 @@ The assistant wants to replace text in an existing file.
             }
         }
 
+        private async Task InvokeResponsesScriptAsync(string script)
+        {
+            await EnsureResponsesViewerPageLoadedAsync();
+
+            try
+            {
+                await wvResponsesResponse.InvokeScript(script);
+            }
+            catch (InvalidOperationException ex) when (
+                ex.Message.Contains("Unable to invoke script before any page was loaded", StringComparison.Ordinal))
+            {
+                // The WebView can lose its document while the cached loaded flag is still true.
+                // Invalidate that cache and synchronize against a fresh NavigationCompleted.
+                _responsesViewerPageLoaded = false;
+                if (_responsesViewerPageLoadTask?.IsCompleted == true)
+                    _responsesViewerPageLoadTask = null;
+
+                await EnsureResponsesViewerPageLoadedAsync();
+                await wvResponsesResponse.InvokeScript(script);
+            }
+        }
+
         private async Task RenderResponsesMarkdownAsync(string markdown)
         {
             await EnsureResponsesWebViewInitializedAsync();
@@ -2172,13 +2216,13 @@ The assistant wants to replace text in an existing file.
             string htmlBody = ConvertMarkdownToHtmlBody(markdown);
             string jsArgument = System.Text.Json.JsonSerializer.Serialize(htmlBody);
 
-            await wvResponsesResponse.InvokeScript(
+            await InvokeResponsesScriptAsync(
                 $"window.markdownViewer.setContent({jsArgument});");
 
             await ApplySelectedPageThemeAsync();
             await ApplySelectedMarkdownThemeAsync();
             // Scroll to top after rendering new content
-            await wvResponsesResponse.InvokeScript("window.scrollTo(0, 0);");
+            await InvokeResponsesScriptAsync("window.scrollTo(0, 0);");
         }
         private async Task ApplySelectedPageThemeAsync()
         {
@@ -2187,7 +2231,7 @@ The assistant wants to replace text in an existing file.
 
             string hrefArgument = JsonSerializer.Serialize(_selectedPageTheme.RelativeHref);
 
-            await wvResponsesResponse.InvokeScript(
+            await InvokeResponsesScriptAsync(
                 $"window.markdownViewer.setPageTheme({hrefArgument});");
         }
         private async Task ApplySelectedMarkdownThemeAsync()
@@ -2197,7 +2241,7 @@ The assistant wants to replace text in an existing file.
 
             string hrefArgument = System.Text.Json.JsonSerializer.Serialize(_selectedMarkdownTheme.RelativeHref);
 
-            await wvResponsesResponse.InvokeScript(
+            await InvokeResponsesScriptAsync(
                 $"window.markdownViewer.setHighlightTheme({hrefArgument});");
 
             /*await wvResponsesResponse.InvokeScript(
