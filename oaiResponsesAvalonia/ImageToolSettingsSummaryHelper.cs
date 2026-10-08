@@ -9,19 +9,19 @@ namespace oaiResponsesAvalonia
         private sealed class Snapshot
         {
             [JsonPropertyName("quality")]
-            public string Quality { get; set; }
+            public string? Quality { get; set; }
 
             [JsonPropertyName("size")]
-            public string Size { get; set; }
+            public string? Size { get; set; }
 
             [JsonPropertyName("output_format")]
-            public string OutputFormat { get; set; }
+            public string? OutputFormat { get; set; }
 
             [JsonPropertyName("output_compression")]
             public int? OutputCompression { get; set; }
 
             [JsonPropertyName("background")]
-            public string Background { get; set; }
+            public string? Background { get; set; }
 
         }
 

@@ -53,8 +53,8 @@ namespace oaiResponsesAvalonia
             set => SetProperty(ref _showDev, value);
         }
 
-        private LogRowViewModel _selectedLogRow;
-        public LogRowViewModel SelectedLogRow
+        private LogRowViewModel? _selectedLogRow;
+        public LogRowViewModel? SelectedLogRow
         {
             get => _selectedLogRow;
             set => SetProperty(ref _selectedLogRow, value);

@@ -47,7 +47,7 @@ namespace oaiResponsesAvalonia.Services
 
         private sealed class Scope : IDisposable
         {
-            private AppStatus _owner;
+            private AppStatus? _owner;
             public Scope(AppStatus owner) => _owner = owner;
             public void Dispose()
             {

@@ -12,7 +12,7 @@ namespace oaiResponsesAvalonia.Services
     {
         private readonly MediaStorageService _mediaStorageService;
 
-        public HistoryService(MediaStorageService mediaStorageService = null)
+        public HistoryService(MediaStorageService? mediaStorageService = null)
         {
             _mediaStorageService = mediaStorageService ?? new MediaStorageService();
         }
@@ -37,16 +37,16 @@ namespace oaiResponsesAvalonia.Services
                     int sessionId,
                     string role,
                     string content,
-                    string rawJson = null,
-                    string model = null,
-                    string reasoning = null,
-                    string tools = null,
-                    string imgSize = null,
-                    string imgQual = null,
-                    string searchSize = null,
-                    string imageToolSettingsJson = null,
-                    string developerToolSettingsJson = null,
-                    string toolCallLogJson = null)
+                    string? rawJson = null,
+                    string? model = null,
+                    string? reasoning = null,
+                    string? tools = null,
+                    string? imgSize = null,
+                    string? imgQual = null,
+                    string? searchSize = null,
+                    string? imageToolSettingsJson = null,
+                    string? developerToolSettingsJson = null,
+                    string? toolCallLogJson = null)
 
         {
             await using var context = CreateDbContext();
@@ -167,13 +167,13 @@ namespace oaiResponsesAvalonia.Services
 
                 foreach (var media in message.MediaFiles)
                 {
-                    string mediaPath = _mediaStorageService.ResolveMediaPath(media.LocalPath);
+                    string? mediaPath = _mediaStorageService.ResolveMediaPath(media.LocalPath);
                     if (string.IsNullOrWhiteSpace(mediaPath) || !File.Exists(mediaPath))
                         continue;
 
                     if (FileInputHelper.IsImageMimeType(media.MediaType))
                     {
-                        string dataUrl = ImageInputHelper.ToDataUrl(mediaPath);
+                        string? dataUrl = ImageInputHelper.ToDataUrl(mediaPath);
 
                         if (!string.IsNullOrWhiteSpace(dataUrl))
                         {
@@ -308,7 +308,7 @@ namespace oaiResponsesAvalonia.Services
                 .ToListAsync();
         }
 
-        public async Task<ChatMessage> GetMessageAsync(int messageId)
+        public async Task<ChatMessage?> GetMessageAsync(int messageId)
         {
             await using var context = CreateDbContext();
 

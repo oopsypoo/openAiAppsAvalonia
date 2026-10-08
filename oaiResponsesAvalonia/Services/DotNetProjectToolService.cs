@@ -46,7 +46,7 @@ namespace oaiResponsesAvalonia.Services
         public async Task<string> CreateDotNetSolutionAsync(
             string solutionName,
             string projectName,
-            string template,
+            string? template,
             string framework,
             string outputDirectory)
         {
@@ -56,7 +56,8 @@ namespace oaiResponsesAvalonia.Services
                 ValidateName(solutionName, "solution_name");
                 ValidateName(projectName, "project_name");
 
-                if (!AllowedTemplates.Contains(template ?? string.Empty))
+                string safeTemplate = template ?? string.Empty;
+                if (!AllowedTemplates.Contains(safeTemplate))
                     throw new InvalidOperationException("The requested template is not allowed.");
 
                 ValidateChildDirectory(outputDirectory);
@@ -86,7 +87,7 @@ namespace oaiResponsesAvalonia.Services
                 string projectFullPath = Path.Combine(_guard.RootFullPath, projectRelativePath);
                 var newProjectArguments = new List<string>
                 {
-                    "new", template, "--name", projectName, "--output", projectFullPath
+                    "new", safeTemplate, "--name", projectName, "--output", projectFullPath
                 };
 
                 if (!string.IsNullOrWhiteSpace(framework))
@@ -111,10 +112,10 @@ namespace oaiResponsesAvalonia.Services
                         commands = commandResults
                     });
 
-                string solutionFullPath = Directory
+                string? solutionFullPath = Directory
                     .EnumerateFiles(outputFullPath, "*.sln*", SearchOption.TopDirectoryOnly)
                     .FirstOrDefault();
-                string projectFileFullPath = Directory
+                string? projectFileFullPath = Directory
                     .EnumerateFiles(projectFullPath, "*.csproj", SearchOption.TopDirectoryOnly)
                     .FirstOrDefault();
 

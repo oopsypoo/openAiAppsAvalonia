@@ -78,7 +78,7 @@ namespace oaiResponsesAvalonia.Data
                 }
             }
 
-            string folder = Path.GetDirectoryName(DatabaseFilePath);
+            string? folder = Path.GetDirectoryName(DatabaseFilePath);
             if (!string.IsNullOrWhiteSpace(folder))
             {
                 Directory.CreateDirectory(folder);

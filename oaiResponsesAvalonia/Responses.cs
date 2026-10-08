@@ -24,7 +24,7 @@ namespace oaiResponsesAvalonia
         public string CurrentModel { get; set; } = "gpt-4o";
         public string CurrentTool { get; set; } = "text"; // default to plain text
                                                           // NEW: conversation tracking
-        public string LastResponseId { get; private set; } = null;
+        public string? LastResponseId { get; private set; }
         public bool ConversationActive => !string.IsNullOrEmpty(LastResponseId);
         public HashSet<string> ActiveTools { get; } = new();
         public string WebSearchContextSize { get; set; } = "medium";
@@ -47,7 +47,7 @@ namespace oaiResponsesAvalonia
         // Updated to accept the DB-rehydrated history
         // Responses.cs
 
-        public async Task<ResponsesResult> GetChatCompletionAsync(List<object> openAIContext, IProgress<string> progress = null)
+        public async Task<ResponsesResult> GetChatCompletionAsync(List<object> openAIContext, IProgress<string>? progress = null)
         {
             // 1. Build the request object using our new overload
             progress?.Report("Building request");
@@ -93,7 +93,7 @@ namespace oaiResponsesAvalonia
             parsed.ImageOutputFormat = NormalizeImageOutputFormat(ImageGenOutputFormat);
             return parsed;
         }
-        private string BuildInstructions(DeveloperToolsOptions developerToolsOptions)
+        private string BuildInstructions(DeveloperToolsOptions? developerToolsOptions)
         {
             var baseInstructions = @"Return all final answers as clean, well-formed GitHub-style Markdown.
                                 Use Markdown features fully when they improve clarity, including:
@@ -606,7 +606,7 @@ namespace oaiResponsesAvalonia
 
             return tools.ToArray();
         }
-        private ResponsesRequest BuildRequest(object input, string previousResponseId, DeveloperToolsOptions developerToolsOptions)
+        private ResponsesRequest BuildRequest(object input, string? previousResponseId, DeveloperToolsOptions developerToolsOptions)
         {
             var hostedTools = GetToolsForCurrentSelection().Cast<object>().ToList();
             var localFunctionTools = GetLocalFunctionTools(developerToolsOptions);
@@ -638,10 +638,10 @@ namespace oaiResponsesAvalonia
         public async Task<ResponsesResult> GetChatCompletionWithLocalToolsAsync(
         List<object> openAIContext,
         DeveloperToolsOptions developerToolsOptions,
-        Func<string, string, Task<bool>> confirmLocalCallAsync = null,
-        Func<string, string, string, Task> onToolCallLoggedAsync = null,
-        Func<string, Task> onWorkspaceRootChangedAsync = null,
-        IProgress<string> progress = null)
+        Func<string, string, Task<bool>>? confirmLocalCallAsync = null,
+        Func<string, string, string, Task>? onToolCallLoggedAsync = null,
+        Func<string, Task>? onWorkspaceRootChangedAsync = null,
+        IProgress<string>? progress = null)
         {
             if (developerToolsOptions == null ||
                 !developerToolsOptions.Enabled ||
@@ -662,7 +662,7 @@ namespace oaiResponsesAvalonia
                 processManager);
             var dispatcher = new LocalToolDispatcher(fileService, searchService, dotNetProjectService);
 
-            string previousResponseId = null;
+            string? previousResponseId = null;
             object currentInput = openAIContext;
 
             var options = new JsonSerializerOptions
@@ -932,7 +932,7 @@ namespace oaiResponsesAvalonia
             return tools.ToArray();
         }
 
-        private string ParseResponse(ResponsesResponse result)
+        private string ParseResponse(ResponsesResponse? result)
         {
             var sb = new StringBuilder();
             string assistantText = "";
@@ -956,7 +956,7 @@ namespace oaiResponsesAvalonia
                                 {
                                     sb.AppendLine($"   Input: {contentItem.ToolInput}");
                                     // Simulate tool execution
-                                    sb.AppendLine($"   [Simulated: {SimulateTool(contentItem.ToolName, contentItem.ToolInput ?? default)}]");
+                                     sb.AppendLine($"   [Simulated: {SimulateTool(contentItem.ToolName ?? "unknown", contentItem.ToolInput ?? default)}]");
                                 }
                                 break;
                         }
@@ -1012,7 +1012,7 @@ namespace oaiResponsesAvalonia
         private abstract class Tool
         {
             [JsonPropertyName("type")]
-            public string Type { get; set; }
+            public string Type { get; set; } = string.Empty;
         }
 
         private class WebSearchTool : Tool
@@ -1076,10 +1076,10 @@ namespace oaiResponsesAvalonia
         private class ResponsesRequest
         {
             [JsonPropertyName("model")]
-            public string Model { get; set; }
+            public string Model { get; set; } = string.Empty;
 
             [JsonPropertyName("input")]
-            public object Input { get; set; }
+            public object Input { get; set; } = string.Empty;
 
             [JsonPropertyName("truncation")]
             public string Truncation { get; set; } = "auto";
@@ -1087,16 +1087,16 @@ namespace oaiResponsesAvalonia
             [JsonPropertyName("tools")]
             //public Tool[] Tools { get; set; }
             //serializing as object[] to allow empty array or null
-            public Object[] Tools { get; set; }
+            public Object[] Tools { get; set; } = Array.Empty<Object>();
 
             [JsonPropertyName("tool_choice")]
-            public object ToolChoice { get; set; }
+            public object? ToolChoice { get; set; }
 
             [JsonPropertyName("parallel_tool_calls")]
             public bool ParallelToolCalls { get; set; } = true;
 
             [JsonPropertyName("reasoning")]
-            public ReasoningConfig Reasoning { get; set; }
+            public ReasoningConfig? Reasoning { get; set; }
 
             [JsonPropertyName("store")]
             public bool Store { get; set; } = false;
@@ -1104,57 +1104,57 @@ namespace oaiResponsesAvalonia
             public string Instructions { get; set; } = "Return all final answers as clean, well-formed GitHub-style Markdown.\r\n\r\nUse Markdown features fully when they improve clarity, including:\r\n- headings\r\n- short paragraphs\r\n- bullet lists\r\n- numbered lists\r\n- nested lists\r\n- task lists\r\n- tables\r\n- blockquotes\r\n- inline code\r\n- fenced code blocks with language tags\r\n- links\r\n- horizontal rules\r\n\r\nFormatting rules:\r\n- Use headings to organize longer answers.\r\n- Use bullet lists and numbered lists where appropriate.\r\n- Use nested lists when structure benefits from it.\r\n- Use fenced code blocks with the correct language tag whenever you provide code.\r\n- Use inline code for identifiers, class names, method names, file names, commands, property names, enum values, and config keys.\r\n- Use tables when they clearly improve readability.\r\n- Use blockquotes for notes, warnings, and important remarks.\r\n- Keep Markdown valid, clean, and well-formed.\r\n- Do not wrap the entire answer in a single code block.\r\n- Do not use raw HTML unless explicitly requested.\r\n- Prefer readable structure over dense prose.";
 
             [JsonPropertyName("previous_response_id")]
-            public string PreviousResponseId { get; set; }
+            public string? PreviousResponseId { get; set; }
         }
 
         private class ResponsesResponse
         {
             [JsonPropertyName("id")]
-            public string Id { get; set; }
+            public string? Id { get; set; }
 
             [JsonPropertyName("output")]
-            public List<OutputItem> Output { get; set; }
+            public List<OutputItem>? Output { get; set; }
 
             [JsonPropertyName("previous_response_id")]
-            public string PreviousResponseId { get; set; }
+            public string? PreviousResponseId { get; set; }
         }
 
         private class OutputItem
         {
             [JsonPropertyName("type")]
-            public string Type { get; set; }
+            public string? Type { get; set; }
 
             [JsonPropertyName("content")]
-            public List<ContentItem> Content { get; set; }
+            public List<ContentItem>? Content { get; set; }
 
             [JsonPropertyName("result")]
-            public string Result { get; set; }
+            public string? Result { get; set; }
 
             [JsonPropertyName("name")]
-            public string Name { get; set; }
+            public string? Name { get; set; }
 
             [JsonPropertyName("arguments")]
-            public string Arguments { get; set; }
+            public string? Arguments { get; set; }
 
             [JsonPropertyName("call_id")]
-            public string CallId { get; set; }
+            public string? CallId { get; set; }
         }
         private sealed class FunctionCallItem
         {
-            public string Name { get; set; }
-            public string Arguments { get; set; }
-            public string CallId { get; set; }
+            public string Name { get; set; } = string.Empty;
+            public string Arguments { get; set; } = "{}";
+            public string CallId { get; set; } = string.Empty;
         }
         private class ContentItem
         {
             [JsonPropertyName("type")]
-            public string Type { get; set; }
+            public string? Type { get; set; }
 
             [JsonPropertyName("text")]
-            public string Text { get; set; }
+            public string? Text { get; set; }
 
             [JsonPropertyName("tool_name")]
-            public string ToolName { get; set; }
+            public string? ToolName { get; set; }
 
             [JsonPropertyName("tool_input")]
             public JsonElement? ToolInput { get; set; }
@@ -1162,14 +1162,14 @@ namespace oaiResponsesAvalonia
         private class ReasoningConfig
         {
             [JsonPropertyName("effort")]
-            public string Effort { get; set; }
+            public string Effort { get; set; } = string.Empty;
         }
 
 
         public class ResponsesResult
         {
-            public string AssistantText { get; set; }
-            public string RawJson { get; set; }
+            public string AssistantText { get; set; } = string.Empty;
+            public string RawJson { get; set; } = string.Empty;
             public List<string> ImagePayloads { get; set; } = new();
             public string ImageOutputFormat { get; set; } = "png";
             public bool IsSuccess => !string.IsNullOrEmpty(AssistantText);
@@ -1200,7 +1200,7 @@ namespace oaiResponsesAvalonia
 
             return result;
         }
-        private ResponsesResult ParseResponseRich(ResponsesResponse result)
+        private ResponsesResult ParseResponseRich(ResponsesResponse? result)
         {
             var sb = new StringBuilder();
             var images = new List<string>();
@@ -1233,7 +1233,7 @@ namespace oaiResponsesAvalonia
                                 sb.AppendLine($"Tool: {contentItem.ToolName ?? "unknown"}");
                                 if (contentItem.ToolInput != null)
                                     sb.AppendLine($" Input: {contentItem.ToolInput}");
-                                sb.AppendLine($" [Simulated: {SimulateTool(contentItem.ToolName, contentItem.ToolInput ?? default)}]");
+                                 sb.AppendLine($" [Simulated: {SimulateTool(contentItem.ToolName ?? "unknown", contentItem.ToolInput ?? default)}]");
                                 break;
                         }
                     }

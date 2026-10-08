@@ -36,16 +36,16 @@ namespace oaiResponsesAvalonia
                 [".webp"] = "image/webp"
             };
 
-        public static string GetMimeType(string path)
+        public static string GetMimeType(string? path)
         {
             if (string.IsNullOrWhiteSpace(path))
                 return "application/octet-stream";
 
-            string ext = Path.GetExtension(path);
+            string? ext = Path.GetExtension(path);
             if (string.IsNullOrWhiteSpace(ext))
                 return "application/octet-stream";
 
-            return MimeMap.TryGetValue(ext, out string mime)
+            return MimeMap.TryGetValue(ext, out string? mime)
                 ? mime
                 : "application/octet-stream";
         }
@@ -56,7 +56,7 @@ namespace oaiResponsesAvalonia
                    mimeType.StartsWith("image/", StringComparison.OrdinalIgnoreCase);
         }
 
-        public static string ToDataUrl(string filePath, string mimeType = null)
+        public static string ToDataUrl(string? filePath, string? mimeType = null)
         {
             if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
                 return string.Empty;

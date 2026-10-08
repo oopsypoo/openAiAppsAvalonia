@@ -72,7 +72,7 @@ namespace oaiResponsesAvalonia.Data
         public string ImageToolSettingsJson { get; set; } = string.Empty;
         public string DeveloperToolSettingsJson { get; set; } = string.Empty;
         public string ToolCallLogJson { get; set; } = string.Empty;
-        public virtual ChatSession ChatSession { get; set; }
+        public virtual ChatSession? ChatSession { get; set; }
 
         public virtual ICollection<MediaFile> MediaFiles { get; set; } = new List<MediaFile>();
         [NotMapped]
@@ -101,7 +101,7 @@ namespace oaiResponsesAvalonia.Data
 
         public string MediaType { get; set; } = string.Empty;
 
-        public virtual ChatMessage ChatMessage { get; set; }
+        public virtual ChatMessage? ChatMessage { get; set; }
 
         [NotMapped]
         public string FileName => Path.GetFileName((LocalPath ?? string.Empty).Replace('\\', '/'));

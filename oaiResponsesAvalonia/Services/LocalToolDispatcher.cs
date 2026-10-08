@@ -110,8 +110,8 @@ namespace oaiResponsesAvalonia.Services
         private static string GetString(JsonElement root, string name)
         {
             return root.TryGetProperty(name, out var prop) && prop.ValueKind == JsonValueKind.String
-                ? prop.GetString()
-                : null;
+                ? prop.GetString() ?? string.Empty
+                : string.Empty;
         }
 
         private static int? GetInt(JsonElement root, string name)

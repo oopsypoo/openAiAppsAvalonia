@@ -30,10 +30,10 @@ namespace oaiResponsesAvalonia.Services
             "qmake", "qtpaths", "node", "npm", "git"
         };
 
-        public EnvironmentCapabilityReport CreateReport(string workspaceRoot)
+        public EnvironmentCapabilityReport CreateReport(string? workspaceRoot)
         {
             var report = new StringBuilder();
-            WorkspaceTreeNode workspaceTree = null;
+            WorkspaceTreeNode? workspaceTree = null;
 
             report.AppendLine("Environment capabilities report");
             report.AppendLine("Generated: " + DateTimeOffset.Now.ToString("u"));
@@ -48,7 +48,7 @@ namespace oaiResponsesAvalonia.Services
 
             foreach (string tool in CandidateTools)
             {
-                string location = FindTool(tool);
+                string? location = FindTool(tool);
                 report.AppendLine("- " + tool + ": " + (location ?? "not found"));
             }
 
@@ -117,7 +117,7 @@ namespace oaiResponsesAvalonia.Services
             return "Other";
         }
 
-        private static string FindTool(string toolName)
+        private static string? FindTool(string toolName)
         {
             string path = Environment.GetEnvironmentVariable("PATH") ?? string.Empty;
             string[] directories = path.Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries);
@@ -147,7 +147,7 @@ namespace oaiResponsesAvalonia.Services
             if (!OperatingSystem.IsWindows())
                 return new[] { string.Empty };
 
-            string pathExt = Environment.GetEnvironmentVariable("PATHEXT");
+            string? pathExt = Environment.GetEnvironmentVariable("PATHEXT");
             if (string.IsNullOrWhiteSpace(pathExt))
                 pathExt = ".COM;.EXE;.BAT;.CMD";
 
@@ -156,11 +156,11 @@ namespace oaiResponsesAvalonia.Services
 
         private static WorkspaceScanResult ScanWorkspace(string root)
         {
-            var result = new WorkspaceScanResult { DirectoriesDiscovered = 1 };
             var rootInfo = new DirectoryInfo(root);
-            result.RootNode = new WorkspaceTreeNode(string.IsNullOrEmpty(rootInfo.Name) ? root : rootInfo.Name, true);
+            var rootNode = new WorkspaceTreeNode(string.IsNullOrEmpty(rootInfo.Name) ? root : rootInfo.Name, true);
+            var result = new WorkspaceScanResult(rootNode) { DirectoriesDiscovered = 1 };
             var pending = new Stack<(string Directory, int Depth, WorkspaceTreeNode Node)>();
-            pending.Push((root, 0, result.RootNode));
+            pending.Push((root, 0, rootNode));
 
             while (pending.Count > 0 && result.FilesInspected < MaximumWorkspaceFiles && result.DirectoriesInspected < MaximumWorkspaceDirectories)
             {
@@ -248,7 +248,7 @@ namespace oaiResponsesAvalonia.Services
             if (result.FilesInspected >= MaximumWorkspaceFiles)
                 result.ReachedFileLimit = true;
 
-            SortTree(result.RootNode);
+            SortTree(rootNode);
             result.ProjectFiles.Sort(StringComparer.OrdinalIgnoreCase);
             return result;
         }
@@ -308,7 +308,8 @@ namespace oaiResponsesAvalonia.Services
 
         private sealed class WorkspaceScanResult
         {
-            public WorkspaceTreeNode RootNode { get; set; }
+            public WorkspaceScanResult(WorkspaceTreeNode rootNode) => RootNode = rootNode;
+            public WorkspaceTreeNode RootNode { get; }
             public int FilesInspected { get; set; }
             public int DirectoriesInspected { get; set; }
             public int DirectoriesDiscovered { get; set; }
@@ -322,14 +323,14 @@ namespace oaiResponsesAvalonia.Services
 
     public sealed class EnvironmentCapabilityReport
     {
-        public EnvironmentCapabilityReport(string text, WorkspaceTreeNode workspaceRoot)
+        public EnvironmentCapabilityReport(string text, WorkspaceTreeNode? workspaceRoot)
         {
             Text = text;
             WorkspaceRoot = workspaceRoot;
         }
 
         public string Text { get; }
-        public WorkspaceTreeNode WorkspaceRoot { get; }
+        public WorkspaceTreeNode? WorkspaceRoot { get; }
     }
 
     public sealed class WorkspaceTreeNode

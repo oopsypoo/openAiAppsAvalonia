@@ -58,7 +58,7 @@ namespace oaiResponsesAvalonia.Services
                 if (string.IsNullOrWhiteSpace(payload))
                     continue;
 
-                string filePath = null;
+                string? filePath = null;
 
                 try
                 {
@@ -147,8 +147,8 @@ namespace oaiResponsesAvalonia.Services
             {
                 try
                 {
-                    string resolvedPath = ResolveMediaPath(path);
-                    if (File.Exists(resolvedPath))
+                    string? resolvedPath = ResolveMediaPath(path);
+                    if (resolvedPath != null && File.Exists(resolvedPath))
                     {
                         File.Delete(resolvedPath);
                     }
@@ -159,7 +159,7 @@ namespace oaiResponsesAvalonia.Services
                 }
             }
         }
-        public string ImportUserImage(string sourceFilePath)
+        public string? ImportUserImage(string sourceFilePath)
         {
             return ImportUserFile(sourceFilePath);
         }
@@ -176,7 +176,7 @@ namespace oaiResponsesAvalonia.Services
             return fileName;
         }
 
-        public string ImportUserFile(string sourceFilePath)
+        public string? ImportUserFile(string sourceFilePath)
         {
             if (string.IsNullOrWhiteSpace(sourceFilePath) || !File.Exists(sourceFilePath))
                 return null;
@@ -198,7 +198,7 @@ namespace oaiResponsesAvalonia.Services
             }
         }
 
-        public string ResolveMediaPath(string storedPath)
+        public string? ResolveMediaPath(string? storedPath)
         {
             if (string.IsNullOrWhiteSpace(storedPath))
                 return null;
@@ -239,11 +239,11 @@ namespace oaiResponsesAvalonia.Services
                     continue;
                 }
 
-                string sourcePath = ResolveMediaPath(oldPath);
-                if (!File.Exists(sourcePath))
+                string? sourcePath = ResolveMediaPath(oldPath);
+                if (sourcePath == null || !File.Exists(sourcePath))
                     continue;
 
-                string storedPath = IsInImagesFolder(sourcePath)
+                string? storedPath = IsInImagesFolder(sourcePath)
                     ? ToStoredMediaPath(sourcePath)
                     : ImportUserFile(sourcePath);
 

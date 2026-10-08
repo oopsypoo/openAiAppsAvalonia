@@ -104,9 +104,9 @@ namespace oaiResponsesAvalonia.Services
             return Serialize(new { ok = true, processes = items });
         }
 
-        public string GetProcessOutput(string processId)
+        public string GetProcessOutput(string? processId)
         {
-            if (!Processes.TryGetValue(processId ?? string.Empty, out RunningProcess record))
+            if (!Processes.TryGetValue(processId ?? string.Empty, out RunningProcess? record))
                 return Serialize(new { ok = false, error = "Unknown developer-launched process." });
 
             lock (record.SyncRoot)
@@ -124,9 +124,9 @@ namespace oaiResponsesAvalonia.Services
             }
         }
 
-        public string StopRunningProcess(string processId)
+        public string StopRunningProcess(string? processId)
         {
-            if (!Processes.TryGetValue(processId ?? string.Empty, out RunningProcess record))
+            if (!Processes.TryGetValue(processId ?? string.Empty, out RunningProcess? record))
                 return Serialize(new { ok = false, error = "Unknown developer-launched process." });
 
             try

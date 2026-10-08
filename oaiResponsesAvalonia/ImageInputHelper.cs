@@ -5,7 +5,7 @@ namespace oaiResponsesAvalonia
 {
     public static class ImageInputHelper
     {
-        public static string ToDataUrl(string filePath)
+        public static string? ToDataUrl(string? filePath)
         {
             if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
                 return null;
@@ -19,7 +19,7 @@ namespace oaiResponsesAvalonia
             return $"data:image/{ext};base64,{b64}";
         }
 
-        public static string GetMimeType(string filePath)
+        public static string GetMimeType(string? filePath)
         {
             var ext = Path.GetExtension(filePath)?.ToLowerInvariant();
 
