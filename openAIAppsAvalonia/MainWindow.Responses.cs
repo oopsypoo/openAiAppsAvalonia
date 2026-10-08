@@ -30,6 +30,7 @@ namespace openAiAppsAvalonia
         private bool _isApplyingResponsesSettings;
         private bool _responsesWebViewInitialized;
         private bool _responsesViewerPageLoaded;
+        private string _environmentCapabilityReport = string.Empty;
 
         private bool _bindingMarkdownThemeOptions;
         private bool _bindingPageThemeOptions;
@@ -1478,6 +1479,33 @@ namespace openAiAppsAvalonia
             if (item.IsImage && File.Exists(item.LocalPath))
                 ShowResponsesImagePreview(item.LocalPath);
         }
+        private void cbDeveloperTools_Checked(object sender, RoutedEventArgs e)
+        {
+            RefreshEnvironmentCapabilityReport();
+        }
+
+        private void txtDeveloperWorkspaceRoot_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (ResponsesState?.UseDeveloperTools == true)
+                RefreshEnvironmentCapabilityReport();
+        }
+
+        private void btnDeveloperEnvironmentReport_Click(object sender, RoutedEventArgs e)
+        {
+            RefreshEnvironmentCapabilityReport();
+            var reportWindow = new EnvironmentReportWindow(_environmentCapabilityReport)
+            {
+                Owner = this
+            };
+            reportWindow.ShowDialog();
+        }
+
+        private void RefreshEnvironmentCapabilityReport()
+        {
+            _environmentCapabilityReport = new EnvironmentCapabilityReportService()
+                .CreateReport(ResponsesState?.DeveloperRepositoryRoot);
+        }
+
         private void btnDeveloperStopAllProcesses_Click(object sender, RoutedEventArgs e)
         {
             int stopped = new DeveloperProcessManager().StopAllRunningProcesses();

@@ -826,7 +826,14 @@
                                             <CheckBox Grid.Row="0"
                                                       x:Name="cbToolDeveloperTools"
                                                       Content="Developer Tools"
+                                                      Checked="cbDeveloperTools_Checked"
                                                       IsChecked="{Binding ResponsesState.UseDeveloperTools, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}" />
+                                            <Button Grid.Row="0"
+                                                    Margin="130,0,0,0"
+                                                    Padding="6,1"
+                                                    Content="Environment report"
+                                                    IsEnabled="{Binding ResponsesState.UseDeveloperTools, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    Click="btnDeveloperEnvironmentReport_Click" />
 
                                             <Grid Grid.Row="1"
                                                   Margin="16,6,0,0"
@@ -850,7 +857,8 @@
                                                             Width="70"
                                                             Margin="0,0,6,0"
                                                             Click="btnDeveloperBrowseRoot_Click"/>
-                                                    <TextBox Text="{Binding ResponsesState.DeveloperRepositoryRoot, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                                    <TextBox Text="{Binding ResponsesState.DeveloperRepositoryRoot, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                             LostFocus="txtDeveloperWorkspaceRoot_LostFocus" />
                                                 </DockPanel>
 
                                                 <Label Grid.Row="2" Content="Scope" Margin="0,8,0,2"/>
