@@ -37,6 +37,7 @@ public partial class MainWindow : Window
     private Responses _responsesClient = null!;
     private string _responsesImagePath = string.Empty;
     private string _responsesPreviewImagePath = string.Empty;
+    private LogRowViewModel? _lastSelectedLogRow;
     private readonly HistoryService _historyService;
     private readonly MediaStorageService _mediaStorageService;
     private readonly SessionCleanupService _sessionCleanupService;
@@ -158,6 +159,14 @@ public partial class MainWindow : Window
 
     private void LogsState_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
+        if (e.PropertyName == nameof(LogsPanelState.SelectedLogRow))
+        {
+            if (LogsState.SelectedLogRow is { } selectedRow)
+                _lastSelectedLogRow = selectedRow;
+            else
+                RestoreLastSelectedLogRow();
+        }
+
         if (e.PropertyName == nameof(LogsPanelState.SearchText) || e.PropertyName == nameof(LogsPanelState.TypeFilter))
             ApplyFilters();
 
@@ -291,6 +300,11 @@ public partial class MainWindow : Window
             return matchesType && matchesText;
         }).ToList();
 
+        if (LogsState.SelectedLogRow is { } selectedRow && !filtered.Contains(selectedRow))
+            LogsState.SelectedLogRow = null;
+        if (_lastSelectedLogRow is not null && !filtered.Contains(_lastSelectedLogRow))
+            _lastSelectedLogRow = null;
+
         LogView.Clear();
         foreach (var row in filtered)
             LogView.Add(row);
@@ -307,8 +321,10 @@ public partial class MainWindow : Window
 
     private void tabMain_SelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
-        if (ReferenceEquals(sender, tabMain) && tabMain.SelectedItem == tabLogs)
-            RefreshLogsTab();
+        if (!ReferenceEquals(e.Source, tabMain) || tabMain.SelectedItem != tabLogs)
+            return;
+
+        RefreshLogsTab();
     }
 
     private async Task ClearDeletedSessionFromUi(ChatSession session)
@@ -339,7 +355,28 @@ public partial class MainWindow : Window
         ApplyFilters();
         if (ReferenceEquals(LogsState.SelectedLogRow, row))
             LogsState.SelectedLogRow = null;
+        if (ReferenceEquals(_lastSelectedLogRow, row))
+            _lastSelectedLogRow = null;
         _appStatus.Set($"Deleted session '{session.Title}'");
+    }
+
+    private void dgUnifiedLogs_LostFocus(object? sender, RoutedEventArgs e)
+    {
+        RestoreLastSelectedLogRow();
+    }
+
+    private void RestoreLastSelectedLogRow()
+    {
+        if (_lastSelectedLogRow is not { } selectedRow)
+            return;
+
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (LogsState.SelectedLogRow is null &&
+                ReferenceEquals(_lastSelectedLogRow, selectedRow) &&
+                LogView.Contains(selectedRow))
+                dgUnifiedLogs.SelectedItem = selectedRow;
+        });
     }
 
     private async Task OpenSessionFromLogsAsync(ChatSession session)
@@ -424,7 +461,7 @@ public partial class MainWindow : Window
 
     private async Task ExportSelectedLogAsync(string format)
     {
-        var selectedRow = LogsState.SelectedLogRow;
+        var selectedRow = LogsState.SelectedLogRow ?? _lastSelectedLogRow;
         if (selectedRow?.Session is not { } session)
         {
             await _dialogs.ShowMessageAsync(this, "Export", "Select a log row first.");

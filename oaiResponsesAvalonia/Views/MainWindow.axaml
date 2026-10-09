@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="oaiResponsesAvalonia.Views.MainWindow"
+        x:Name="RootWindow"
         x:DataType="vm:MainViewModel"
         x:CompileBindings="False"
         Icon="/Assets/avalonia-logo.ico"
@@ -94,6 +95,7 @@
                                 CornerRadius="20">
                             <ContentPresenter HorizontalAlignment="Center" 
                                               VerticalAlignment="Center"
+                                              Content="{TemplateBinding Content}"
                                               Margin="{TemplateBinding Padding}"/>
                         </Border>
                     </ControlTemplate>
@@ -110,6 +112,7 @@
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Padding" Value="4"/>
             <Setter Property="Focusable" Value="False"/>
+            <Setter Property="IsTabStop" Value="False"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="ToolTip.Tip" Value="Delete session"/>
@@ -254,7 +257,7 @@
                             <!-- REQUEST SECTION -->
                             <!-- Encapsulate to be able to disable at request(Grid) -->
                             <Grid Grid.Row="0"
-                                  IsEnabled="{Binding ResponsesState.AreRequestEditingControlsEnabled, RelativeSource={RelativeSource AncestorType=Window}}">
+                                  IsEnabled="{Binding #RootWindow.ResponsesState.AreRequestEditingControlsEnabled}">
                                 <DockPanel Grid.Row="0" LastChildFill="True">
                                     <!-- Header -->
                                     <Grid DockPanel.Dock="Top" Margin="0,0,0,2">
@@ -293,6 +296,8 @@
                                     <Button DockPanel.Dock="Bottom"
                                     x:Name="btnResponsesSendRequest"
                                     Classes="SendRequest"
+                                    Content="Send Request"
+                                    Padding="5,2"
                                     Click="btnResponsesSendRequestClick"
                                     />
                                     
@@ -312,7 +317,7 @@
 
                                             <ListBox x:Name="lstResponsesPendingAttachments"
                                                  MaxHeight="120"
-                                                 ItemsSource="{Binding PendingResponseAttachments, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                 ItemsSource="{Binding #RootWindow.PendingResponseAttachments}"
                                                  SelectionChanged="lstResponsesPendingAttachments_SelectionChanged"
                                                  >
                                                 <ListBox.ItemTemplate>
@@ -356,7 +361,7 @@
                                         <TextBox Grid.Column="0"
                                              x:Name="txtResponsesPrompt"
                                              Classes="TextBoxRequest"
-                                             Text="{Binding ResponsesState.PromptText, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                             Text="{Binding #RootWindow.ResponsesState.PromptText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
                                         <Border Grid.Column="1"
                                             x:Name="borderResponsesImage"
@@ -407,7 +412,7 @@
 
                                                 <ListBox Grid.Row="4"
                                          x:Name="lstResponsesImages"
-                                         ItemsSource="{Binding ResponsePreviewImages, RelativeSource={RelativeSource AncestorType=Window}}"
+                                         ItemsSource="{Binding #RootWindow.ResponsePreviewImages}"
                                          SelectionChanged="lstResponsesImages_SelectionChanged"
                                          >
                                                     <ListBox.ItemTemplate>
@@ -495,7 +500,7 @@
                                     </Border>
 
                                     <Border Grid.Row="1"
-                                            IsVisible="{Binding ResponsesState.DeveloperPendingReviewVisible, RelativeSource={RelativeSource AncestorType=Window}}"
+                                            IsVisible="{Binding #RootWindow.ResponsesState.DeveloperPendingReviewVisible}"
                                             Margin="0,8,0,0"
                                             Padding="0"
                                             Background="#FFFDF7"
@@ -530,14 +535,14 @@
                                                         <TextBlock Margin="0,0,0,4">
                         <Run Text="Tool: "
                              FontWeight="SemiBold" />
-                        <Run Text="{Binding ResponsesState.DeveloperPendingReviewToolName, RelativeSource={RelativeSource AncestorType=Window}}" />
+                        <Run Text="{Binding #RootWindow.ResponsesState.DeveloperPendingReviewToolName}" />
                                                         </TextBlock>
 
-                                                        <TextBlock Text="{Binding ResponsesState.DeveloperPendingReviewTitle, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                        <TextBlock Text="{Binding #RootWindow.ResponsesState.DeveloperPendingReviewTitle}"
                                FontWeight="SemiBold"
                                Margin="0,0,0,4" />
 
-                                                        <TextBlock Text="{Binding ResponsesState.DeveloperPendingReviewSummary, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                        <TextBlock Text="{Binding #RootWindow.ResponsesState.DeveloperPendingReviewSummary}"
                                TextWrapping="Wrap"
                                Foreground="#333333" />
                                                     </StackPanel>
@@ -605,20 +610,20 @@
                                 <!-- Model -->
                                 <Label Grid.Row="0" Content="Model" />
                                 <ComboBox Grid.Row="1"
-                                          IsEnabled="{Binding ResponsesState.AreRequestEditingControlsEnabled, RelativeSource={RelativeSource AncestorType=Window}}"
+                                          IsEnabled="{Binding #RootWindow.ResponsesState.AreRequestEditingControlsEnabled}"
                                           x:Name="cmbResponsesModel"
                                           IsEditable="False"
                                                           SelectedValueBinding="{Binding Tag}"
-                                                          SelectedValue="{Binding ResponsesState.SelectedModel, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}" />
+                                                          SelectedValue="{Binding #RootWindow.ResponsesState.SelectedModel, Mode=TwoWay}" />
 
                                 <!-- Reasoning -->
                                 <Label Grid.Row="2" Content="Reasoning" Margin="0,5,0,2"/>
                                 <ComboBox Grid.Row="3"
-                                          IsEnabled="{Binding ResponsesState.AreRequestEditingControlsEnabled, RelativeSource={RelativeSource AncestorType=Window}}"
+                                          IsEnabled="{Binding #RootWindow.ResponsesState.AreRequestEditingControlsEnabled}"
                                           x:Name="cmbReasoning"
                                           IsEditable="False"
                                           SelectedValueBinding="{Binding Tag}"
-                                          SelectedValue="{Binding ResponsesState.SelectedReasoning, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}">
+                                          SelectedValue="{Binding #RootWindow.ResponsesState.SelectedReasoning, Mode=TwoWay}">
                                     <ComboBoxItem Content="none" IsSelected="True" Tag="none"/>
                                     <ComboBoxItem Content="minimal" Tag="minimal"/>
                                     <ComboBoxItem Content="low" Tag="low"/>
@@ -631,7 +636,7 @@
                                 <Label Grid.Row="4" Content="Available Tools" Margin="0,5,0,2"/>
 
                                 <Grid Grid.Row="5"
-                                      IsEnabled="{Binding ResponsesState.AreRequestEditingControlsEnabled, RelativeSource={RelativeSource AncestorType=Window}}"
+                                      IsEnabled="{Binding #RootWindow.ResponsesState.AreRequestEditingControlsEnabled}"
                                       Margin="0,2,0,0">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
@@ -644,7 +649,7 @@
                                               x:Name="cbToolText"
                                               Content="Text (no tools)"
                                               Margin="0,0,0,2"
-                                              IsChecked="{Binding ResponsesState.UseTextTool, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}" />
+                                              IsChecked="{Binding #RootWindow.ResponsesState.UseTextTool, Mode=TwoWay}" />
 
                                     <!-- Web search -->
                                     <Border Grid.Row="1"
@@ -662,11 +667,11 @@
                                             <CheckBox Grid.Row="0"
                                                       x:Name="cbToolWebSearch"
                                                       Content="Web search"
-                                                      IsChecked="{Binding ResponsesState.UseWebSearch, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}" />
+                                                      IsChecked="{Binding #RootWindow.ResponsesState.UseWebSearch, Mode=TwoWay}" />
 
                                             <Grid Grid.Row="1"
                                                   Margin="16,6,0,0"
-                                                  IsVisible="{Binding ResponsesState.IsWebSearchOptionsEnabled, RelativeSource={RelativeSource AncestorType=Window}}">
+                                                  IsVisible="{Binding #RootWindow.ResponsesState.IsWebSearchOptionsEnabled}">
                                                 <Grid.RowDefinitions>
                                                     <RowDefinition Height="Auto"/>
                                                     <RowDefinition Height="Auto"/>
@@ -676,7 +681,7 @@
                                                 <ComboBox Grid.Row="1"
                                                           x:Name="cmbSearchContextSize"
                                                           SelectedValueBinding="{Binding Tag}"
-                                                          SelectedValue="{Binding ResponsesState.SearchContextSize, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}">
+                                                          SelectedValue="{Binding #RootWindow.ResponsesState.SearchContextSize, Mode=TwoWay}">
                                                     <ComboBoxItem Content="low" Tag="low"/>
                                                     <ComboBoxItem Content="medium" Tag="medium"/>
                                                     <ComboBoxItem Content="high" Tag="high"/>
@@ -702,11 +707,11 @@
                                           x:Name="cbToolImageGeneration"
                                           Content="Image Generation"
                                           Margin="0,0,0,2"
-                                          IsChecked="{Binding ResponsesState.UseImageGeneration, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}" />
+                                          IsChecked="{Binding #RootWindow.ResponsesState.UseImageGeneration, Mode=TwoWay}" />
 
                                             <Grid Grid.Row="1"
                                                   Margin="16,6,0,0"
-                                                  IsVisible="{Binding ResponsesState.IsImageGenerationOptionsVisible, RelativeSource={RelativeSource AncestorType=Window}}">
+                                                  IsVisible="{Binding #RootWindow.ResponsesState.IsImageGenerationOptionsVisible}">
                                                 <Grid.RowDefinitions>
                                                     <RowDefinition Height="Auto"/>
                                                     <RowDefinition Height="Auto"/>
@@ -724,8 +729,8 @@
                                                 <ComboBox Grid.Row="1"
                                                           x:Name="cmbImageGenQuality"
                                                           SelectedValueBinding="{Binding Tag}"
-                                                          IsEnabled="{Binding ResponsesState.IsImageGenerationOptionsEnabled, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                          SelectedValue="{Binding ResponsesState.ImageGenQuality, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}">
+                                                          IsEnabled="{Binding #RootWindow.ResponsesState.IsImageGenerationOptionsEnabled}"
+                                                          SelectedValue="{Binding #RootWindow.ResponsesState.ImageGenQuality, Mode=TwoWay}">
                                                     <ComboBoxItem Content="auto" Tag="auto" IsSelected="True"/>
                                                     <ComboBoxItem Content="low" Tag="low"/>
                                                     <ComboBoxItem Content="medium" Tag="medium"/>
@@ -736,8 +741,8 @@
                                                 <ComboBox Grid.Row="3"
                                                           x:Name="cmbImageGenSize"
                                                           SelectedValueBinding="{Binding Tag}"
-                                                          IsEnabled="{Binding ResponsesState.IsImageGenerationOptionsEnabled, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                          SelectedValue="{Binding ResponsesState.ImageGenSize, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}">
+                                                          IsEnabled="{Binding #RootWindow.ResponsesState.IsImageGenerationOptionsEnabled}"
+                                                          SelectedValue="{Binding #RootWindow.ResponsesState.ImageGenSize, Mode=TwoWay}">
                                                     <ComboBoxItem Content="auto" Tag="auto" IsSelected="True"/>
                                                     <ComboBoxItem Content="1024x1024" Tag="1024x1024"/>
                                                     <ComboBoxItem Content="1536x1024" Tag="1536x1024"/>
@@ -751,8 +756,8 @@
                                                 <ComboBox Grid.Row="5"
                                                           x:Name="cmbImageGenOutputFormat"
                                                           SelectedValueBinding="{Binding Tag}"
-                                                          IsEnabled="{Binding ResponsesState.IsImageGenerationOptionsEnabled, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                          SelectedValue="{Binding ResponsesState.ImageGenOutputFormat, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}">
+                                                          IsEnabled="{Binding #RootWindow.ResponsesState.IsImageGenerationOptionsEnabled}"
+                                                          SelectedValue="{Binding #RootWindow.ResponsesState.ImageGenOutputFormat, Mode=TwoWay}">
                                                     <ComboBoxItem Content="jpeg" Tag="jpeg" IsSelected="True"/>
                                                     <ComboBoxItem Content="png" Tag="png"/>
                                                     <ComboBoxItem Content="webp" Tag="webp"/>
@@ -763,7 +768,7 @@
                                                        Margin="0,8,0,4"
                                                        ToolTip.Tip="The compression level (0-100%) for the generated images. This parameter is only supported for the GPT image models with the webp or jpeg output formats, and defaults to 85."/>
                                                 <Grid Grid.Row="7"
-                                                    IsEnabled="{Binding ResponsesState.IsOutputCompressionEnabled, RelativeSource={RelativeSource AncestorType=Window}}">
+                                                    IsEnabled="{Binding #RootWindow.ResponsesState.IsOutputCompressionEnabled}">
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="*"/>
                                                         <ColumnDefinition Width="Auto"/>
@@ -774,14 +779,14 @@
                                                             Maximum="100"
                                                             TickFrequency="5"
                                                             IsSnapToTickEnabled="True"
-                                                            Value="{Binding ResponsesState.ImageGenOutputCompression, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}" />
+                                                            Value="{Binding #RootWindow.ResponsesState.ImageGenOutputCompression, Mode=TwoWay}" />
 
                                                     <TextBlock Grid.Column="1"
                                                                Margin="8,0,0,0"
                                                                VerticalAlignment="Center"
                                                                Padding="6,1"
                                                                Background="Aqua"
-                                                   Text="{Binding ResponsesState.ImageGenOutputCompression, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                                   Text="{Binding #RootWindow.ResponsesState.ImageGenOutputCompression}" />
                                                 </Grid>
 
                                                 <Label Grid.Row="8"
@@ -790,12 +795,12 @@
                                                        ToolTip.Tip="Allows to set transparency for the background of the generated image(s). This parameter is only supported for the GPT image models. Must be one of transparent, opaque or auto."/>
                                                 <ComboBox Grid.Row="9"
                                                           x:Name="cmbImageGenBackground"
-                                                          SelectedValue="{Binding ResponsesState.ImageGenBackground, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}">
+                                                          SelectedValue="{Binding #RootWindow.ResponsesState.ImageGenBackground, Mode=TwoWay}">
                                                     <ComboBoxItem Content="auto" Tag="auto"/>
                                                     <ComboBoxItem Content="opaque" Tag="opaque"/>
                                                     <ComboBoxItem Content="transparent"
                                                       Tag="transparent"
-                                                      IsEnabled="{Binding ResponsesState.IsTransparentBackgroundAllowed, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                                      IsEnabled="{Binding #RootWindow.ResponsesState.IsTransparentBackgroundAllowed}" />
                                                 </ComboBox>
                                             </Grid>
                                         </Grid>
@@ -815,18 +820,18 @@
                                             <CheckBox Grid.Row="0"
                                                       x:Name="cbToolDeveloperTools"
                                                       Content="Developer Tools"
-                                                      IsChecked="{Binding ResponsesState.UseDeveloperTools, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}" />
+                                                      IsChecked="{Binding #RootWindow.ResponsesState.UseDeveloperTools, Mode=TwoWay}" />
                                             <Button Grid.Row="0"
                                                     Margin="130,0,0,0"
                                                     Padding="6,1"
                                                     Content="Environment report"
-                                                    IsEnabled="{Binding ResponsesState.UseDeveloperTools, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    IsEnabled="{Binding #RootWindow.ResponsesState.UseDeveloperTools}"
                                                     Click="btnDeveloperEnvironmentReport_Click"
                                                     />
 
                                             <Grid Grid.Row="1"
                                                   Margin="16,6,0,0"
-                                                  IsVisible="{Binding ResponsesState.IsDeveloperToolsOptionsVisible, RelativeSource={RelativeSource AncestorType=Window}}">
+                                                  IsVisible="{Binding #RootWindow.ResponsesState.IsDeveloperToolsOptionsVisible}">
                                                 <Grid.RowDefinitions>
                                                     <RowDefinition Height="Auto"/>
                                                     <RowDefinition Height="Auto"/>
@@ -845,14 +850,14 @@
                                                             Margin="0,0,6,0"
                                                             Click="btnDeveloperBrowseRoot_Click"
                                                             />
-                                                    <TextBox Text="{Binding ResponsesState.DeveloperRepositoryRoot, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                    <TextBox Text="{Binding #RootWindow.ResponsesState.DeveloperRepositoryRoot, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                              LostFocus="txtDeveloperWorkspaceRoot_LostFocus"
                                                              />
                                                 </DockPanel>
 
                                                 <Label Grid.Row="2" Content="Scope" Margin="0,8,0,2"/>
                                                 <ComboBox Grid.Row="3"
-                                                          SelectedValue="{Binding ResponsesState.DeveloperScope, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}">
+                                                          SelectedValue="{Binding #RootWindow.ResponsesState.DeveloperScope, Mode=TwoWay}">
                                                     <ComboBoxItem Content="Current repository only" Tag="repository"/>
                                                     <ComboBoxItem Content="Workspace" Tag="workspace"/>
                                                     <ComboBoxItem Content="Custom" Tag="custom"/>
@@ -864,31 +869,30 @@
                                                            Text="Available functions" />
                                                 <StackPanel Grid.Row="5">
                                                     <CheckBox Content="Search project text"
-                                                              IsChecked="{Binding ResponsesState.DeveloperToolSearchProjectText, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}"/>
+                                                              IsChecked="{Binding #RootWindow.ResponsesState.DeveloperToolSearchProjectText, Mode=TwoWay}"/>
                                                     <CheckBox Content="Read project file"
-                                                              IsChecked="{Binding ResponsesState.DeveloperToolReadProjectFile, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}"/>
+                                                              IsChecked="{Binding #RootWindow.ResponsesState.DeveloperToolReadProjectFile, Mode=TwoWay}"/>
                                                     <CheckBox Content="List project files"
-                                                              IsChecked="{Binding ResponsesState.DeveloperToolListProjectFiles, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}"/>
+                                                              IsChecked="{Binding #RootWindow.ResponsesState.DeveloperToolListProjectFiles, Mode=TwoWay}"/>
                                                       <CheckBox Content="Create .NET solution and project"
                                                                ToolTip.Tip="Creates a constrained .NET solution and project in one new child folder below the workspace root, then switches the workspace root to that new solution folder."
-                                                              IsChecked="{Binding ResponsesState.DeveloperToolCreateDotNetSolution, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}"
-                                                                IsEnabled="{Binding ResponsesState.DeveloperAllowReadOnlyOnly, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                              IsChecked="{Binding #RootWindow.ResponsesState.DeveloperToolCreateDotNetSolution, Mode=TwoWay}"
+                                                                IsEnabled="{Binding #RootWindow.ResponsesState.DeveloperAllowReadOnlyOnly}" />
                                                     <CheckBox Content="Build, clean, or rebuild .NET project or solution"
                                                                ToolTip.Tip="Enables dotnet build, dotnet clean, and clean-then-build for a selected .csproj, .sln, or .slnx file."
-                                                              IsChecked="{Binding ResponsesState.DeveloperToolBuildDotNetProject, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}"
-                                                                IsEnabled="{Binding ResponsesState.DeveloperAllowReadOnlyOnly, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                              IsChecked="{Binding #RootWindow.ResponsesState.DeveloperToolBuildDotNetProject, Mode=TwoWay}"
+                                                                IsEnabled="{Binding #RootWindow.ResponsesState.DeveloperAllowReadOnlyOnly}" />
                                                     <CheckBox Content="Run .NET project (Debug)"
                                                                ToolTip.Tip="Runs a built .NET project in Debug configuration and lets the AI inspect or stop the developer-launched process."
-                                                              IsChecked="{Binding ResponsesState.DeveloperToolRunDotNetProject, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}"
-                                                               IsEnabled="{Binding ResponsesState.DeveloperAllowReadOnlyOnly, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                              IsChecked="{Binding #RootWindow.ResponsesState.DeveloperToolRunDotNetProject, Mode=TwoWay}"
+                                                               IsEnabled="{Binding #RootWindow.ResponsesState.DeveloperAllowReadOnlyOnly}"/>
 
                                                     <CheckBox Content="Write project file"
-                                                              IsChecked="{Binding ResponsesState.DeveloperToolWriteProjectFile, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}"
-                                                               IsEnabled="{Binding ResponsesState.DeveloperAllowReadOnlyOnly, RelativeSource={RelativeSource AncestorType=Window}}"/>
-
+                                                              IsChecked="{Binding #RootWindow.ResponsesState.DeveloperToolWriteProjectFile, Mode=TwoWay}"
+                                                               IsEnabled="{Binding #RootWindow.ResponsesState.DeveloperAllowReadOnlyOnly}"/>
                                                     <CheckBox Content="Replace in project file"
-                                                              IsChecked="{Binding ResponsesState.DeveloperToolReplaceInProjectFile, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}"
-                                                               IsEnabled="{Binding ResponsesState.DeveloperAllowReadOnlyOnly, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                              IsChecked="{Binding #RootWindow.ResponsesState.DeveloperToolReplaceInProjectFile, Mode=TwoWay}"
+                                                               IsEnabled="{Binding #RootWindow.ResponsesState.DeveloperAllowReadOnlyOnly}"/>
                                                 </StackPanel>
 
                                                 <TextBlock Grid.Row="6"
@@ -897,19 +901,19 @@
                                                            Text="Advanced options" />
                                                 <StackPanel Grid.Row="7">
                                                     <CheckBox Content="Allow read-only only"
-                                                              IsChecked="{Binding ResponsesState.DeveloperAllowReadOnlyOnly, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}" />
+                                                              IsChecked="{Binding #RootWindow.ResponsesState.DeveloperAllowReadOnlyOnly, Mode=TwoWay}" />
                                                     <CheckBox Content="Require confirmation before read-only local calls"
                                                                ToolTip.Tip="Prompt before the AI runs search, read, list, or diagnostics tools."
-                                                              IsChecked="{Binding ResponsesState.DeveloperRequireConfirmation, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}" />
+                                                              IsChecked="{Binding #RootWindow.ResponsesState.DeveloperRequireConfirmation, Mode=TwoWay}" />
                                                     <CheckBox Content="Require approval before AI changes files"
                                                                ToolTip.Tip="When enabled, every file write or replacement must be reviewed and approved before it is applied."
-                                                              IsChecked="{Binding ResponsesState.DeveloperRequireWriteConfirmation, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}" />
+                                                              IsChecked="{Binding #RootWindow.ResponsesState.DeveloperRequireWriteConfirmation, Mode=TwoWay}" />
                                                     <CheckBox Content="Require approval before AI executes project operations"
                                                                ToolTip.Tip="When enabled, solution creation, build, run, and process-stop operations require approval before dotnet is started."
-                                                              IsChecked="{Binding ResponsesState.DeveloperRequireExecutionConfirmation, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}"/>
+                                                              IsChecked="{Binding #RootWindow.ResponsesState.DeveloperRequireExecutionConfirmation, Mode=TwoWay}"/>
                                                     <CheckBox Content="Show tool call logs"
                                                                ToolTip.Tip="Show the persisted audit trail of local developer tool calls. Logging continues when this is unchecked."
-                                                              IsChecked="{Binding ResponsesState.DeveloperShowToolLogs, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}" />
+                                                              IsChecked="{Binding #RootWindow.ResponsesState.DeveloperShowToolLogs, Mode=TwoWay}" />
                                                 <Button Content="Stop all Developer Tools applications"
                                                         Margin="0,6,0,0"
                                                          ToolTip.Tip="Stops applications that were launched by the Run .NET project tool in this application instance."
@@ -924,7 +928,7 @@
                                 <!-- Actions -->
                                 <Button Grid.Row="6"
                                         x:Name="btnResponsesNewChat"
-                                        IsEnabled="{Binding ResponsesState.AreRequestEditingControlsEnabled, RelativeSource={RelativeSource AncestorType=Window}}"
+                                        IsEnabled="{Binding #RootWindow.ResponsesState.AreRequestEditingControlsEnabled}"
                                         Margin="0,8,0,0"
                                         Padding="5,2"
                                         Content="New Conversation"
@@ -933,11 +937,11 @@
 
                                 <ListBox Grid.Row="7"
                                          x:Name="lstResponsesTurns"
-                                         IsEnabled="{Binding ResponsesState.AreRequestEditingControlsEnabled, RelativeSource={RelativeSource AncestorType=Window}}"
+                                         IsEnabled="{Binding #RootWindow.ResponsesState.AreRequestEditingControlsEnabled}"
                                          Height="150"
                                          Margin="0,8,0,0"
-                                         ItemsSource="{Binding CurrentChatMessages, RelativeSource={RelativeSource AncestorType=Window}}"
-                                         SelectedItem="{Binding ResponsesState.SelectedTurn, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}"
+                                         ItemsSource="{Binding #RootWindow.CurrentChatMessages}"
+                                         SelectedItem="{Binding #RootWindow.ResponsesState.SelectedTurn, Mode=TwoWay}"
                                          SelectionChanged="lstResponsesTurns_SelectionChanged"
                                          DoubleTapped="lstResponsesTurns_MouseDoubleClick"
                                          >
@@ -989,7 +993,7 @@
 
                                 <Button Grid.Row="8"
                                         x:Name="btnResponsesDeleteChat"
-                                        IsEnabled="{Binding ResponsesState.AreRequestEditingControlsEnabled, RelativeSource={RelativeSource AncestorType=Window}}"
+                                        IsEnabled="{Binding #RootWindow.ResponsesState.AreRequestEditingControlsEnabled}"
                                         Margin="0,8,0,0"
                                         Padding="5,2"
                                         Content="Remove Current Turn"
@@ -998,7 +1002,7 @@
                                 <Expander Grid.Row="9"
                                           Margin="0,8,0,0"
                                           Header="Local Tool Call Logs"
-                                         IsVisible="{Binding ResponsesState.DeveloperToolLogsVisible, RelativeSource={RelativeSource AncestorType=Window}}"
+                                         IsVisible="{Binding #RootWindow.ResponsesState.DeveloperToolLogsVisible}"
                                           IsExpanded="False">
                                     <Border Margin="0,6,0,0"
                                             Padding="6"
@@ -1019,7 +1023,7 @@
 
                                             <ListBox Grid.Row="1"
                                                      MaxHeight="180"
-                                                     ItemsSource="{Binding DeveloperToolCallLogs, RelativeSource={RelativeSource AncestorType=Window}, Mode=OneWay}">
+                                                     ItemsSource="{Binding #RootWindow.DeveloperToolCallLogs, Mode=OneWay}">
                                                 <ListBox.ItemTemplate>
                                                     <DataTemplate>
                                                         <Border Margin="0,0,0,6"
@@ -1087,7 +1091,7 @@
                         <ComboBox x:Name="cbLogTypeFilter"
                                   SelectionChanged="cbLogTypeFilter_SelectionChanged"
                                   Width="120"
-                                  SelectedValue="{Binding LogsState.TypeFilter, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}">
+                                  SelectedValue="{Binding #RootWindow.LogsState.TypeFilter, Mode=TwoWay}">
                             <ComboBoxItem Content="All" Tag="All"/>
                             <ComboBoxItem Content="Responses" Tag="Responses"/>
                         </ComboBox>
@@ -1099,26 +1103,26 @@
                         <TextBox x:Name="txtLogSearch"
                                  Width="300"
                                  Margin="10,0"
-                                 Text="{Binding LogsState.SearchText, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                 Text="{Binding #RootWindow.LogsState.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
                         <Menu Margin="10,0,0,0"
                               VerticalAlignment="Center">
                             <MenuItem Header="Columns">
                                 <MenuItem Header="Turns"
                                           ToggleType="CheckBox"
-                                          IsChecked="{Binding LogsState.ShowTurns, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}" />
+                                          IsChecked="{Binding #RootWindow.LogsState.ShowTurns, Mode=TwoWay}" />
                                 <MenuItem Header="Media"
                                           ToggleType="CheckBox"
-                                          IsChecked="{Binding LogsState.ShowMedia, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}" />
+                                          IsChecked="{Binding #RootWindow.LogsState.ShowMedia, Mode=TwoWay}" />
                                 <MenuItem Header="Tools"
                                           ToggleType="CheckBox"
-                                          IsChecked="{Binding LogsState.ShowTools, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}" />
+                                          IsChecked="{Binding #RootWindow.LogsState.ShowTools, Mode=TwoWay}" />
                                 <MenuItem Header="Model"
                                           ToggleType="CheckBox"
-                                          IsChecked="{Binding LogsState.ShowModel, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}" />
+                                          IsChecked="{Binding #RootWindow.LogsState.ShowModel, Mode=TwoWay}" />
                                 <MenuItem Header="Dev"
                                           ToggleType="CheckBox"
-                                          IsChecked="{Binding LogsState.ShowDev, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}" />
+                                          IsChecked="{Binding #RootWindow.LogsState.ShowDev, Mode=TwoWay}" />
                             </MenuItem>
                         </Menu>
 
@@ -1135,12 +1139,13 @@
                     </StackPanel>
 
                     <DataGrid x:Name="dgUnifiedLogs"
-                              ItemsSource="{Binding LogView, RelativeSource={RelativeSource AncestorType=Window}}"
-                              SelectedItem="{Binding LogsState.SelectedLogRow, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}"
+                              ItemsSource="{Binding #RootWindow.LogView}"
+                              SelectedItem="{Binding #RootWindow.LogsState.SelectedLogRow, Mode=TwoWay}"
                               Grid.Row="1"
                               AutoGenerateColumns="False"
                               IsReadOnly="True"
                               SelectionMode="Single"
+                              LostFocus="dgUnifiedLogs_LostFocus"
                               DoubleTapped="OnLogEntryDoubleTapped"
                               >
 
@@ -1188,6 +1193,8 @@
                                                 Width="28"
                                                 Height="28"
                                                 FontSize="15"
+                                                Focusable="False"
+                                                IsTabStop="False"
                                                 Classes="DeleteButtonStyle"
                                                 Click="OnDeleteSessionClick"
                                                 ToolTip.Tip="{Binding Title, StringFormat=Delete {0}}"/>
