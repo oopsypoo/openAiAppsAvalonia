@@ -62,7 +62,7 @@
 		<None Update="Assets\MarkdownViewer\markdown-viewer.js">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
-		<None Update="Assets\MarkdownViewer\styles\*.min.css">
+        <None Update="Assets\MarkdownViewer\styles\*.min.css">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 		<None Update="Assets\MarkdownViewer\page-themes\github-*-page.css">

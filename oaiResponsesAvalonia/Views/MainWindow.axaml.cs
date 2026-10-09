@@ -57,6 +57,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        Closed += MainWindow_Closed;
         _appStatus = new AppStatus(text => StatusText.Text = text ?? string.Empty);
 
         AppDbContext.InitializeDatabase();

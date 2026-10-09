@@ -488,18 +488,20 @@
                                             BorderThickness="1"
                                             Background="White">
                                         <NativeWebView x:Name="wvResponsesResponse"
+                                                       EnvironmentRequested="ResponsesWebView_EnvironmentRequested"
                                                        HorizontalAlignment="Stretch"
-                                                       VerticalAlignment="Stretch" />
+                                                       VerticalAlignment="Stretch"
+                                                       IsEnabled="True"/>
                                     </Border>
 
                                     <Border Grid.Row="1"
                                             IsVisible="{Binding ResponsesState.DeveloperPendingReviewVisible, RelativeSource={RelativeSource AncestorType=Window}}"
-        Margin="0,8,0,0"
-        Padding="0"
-        Background="#FFFDF7"
-        BorderBrush="#E5C76B"
-        BorderThickness="1"
-        CornerRadius="6">
+                                            Margin="0,8,0,0"
+                                            Padding="0"
+                                            Background="#FFFDF7"
+                                            BorderBrush="#E5C76B"
+                                            BorderThickness="1"
+                                            CornerRadius="6">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="6" />

@@ -10,11 +10,18 @@
   <ItemGroup>
     <Folder Include="Models\" />
     <AvaloniaResource Include="Assets\**" />
-    <Content Include="..\openAIAppsAvalonia\Assets\MarkdownViewer\**\*">
-      <Link>Assets\MarkdownViewer\%(RecursiveDir)%(Filename)%(Extension)</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Remove="Assets\MarkdownViewer\markdown-base.css" />
+    <AvaloniaResource Remove="Assets\MarkdownViewer\markdown-viewer.js" />
+    <AvaloniaResource Remove="Assets\MarkdownViewer\page-themes\github-dark-page.css" />
+    <AvaloniaResource Remove="Assets\MarkdownViewer\page-themes\github-light-page.css" />
+    <AvaloniaResource Remove="Assets\MarkdownViewer\README.md" />
+    <AvaloniaResource Remove="Assets\MarkdownViewer\template.html" />
+    <AvaloniaResource Remove="Assets\MarkdownViewer\viewer-codeblock-fixes.css" />
+    <AvaloniaResource Remove="Assets\MarkdownViewer\highlight.min.js" />
+    <AvaloniaResource Remove="Assets\MarkdownViewer\Styles\**\*" />
   </ItemGroup>
 
   <ItemGroup>
@@ -31,5 +38,32 @@
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.12" />
     <PackageReference Include="Markdig" Version="1.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Assets\MarkdownViewer\markdown-base.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\MarkdownViewer\markdown-viewer.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\MarkdownViewer\page-themes\github-dark-page.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\MarkdownViewer\page-themes\github-light-page.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\MarkdownViewer\template.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\MarkdownViewer\viewer-codeblock-fixes.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\MarkdownViewer\highlight.min.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\MarkdownViewer\Styles\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

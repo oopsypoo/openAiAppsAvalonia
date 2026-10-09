@@ -31,6 +31,7 @@ namespace oaiResponsesAvalonia.Views
         private bool _responsesWebViewInitialized;
         private bool _responsesViewerPageLoaded;
         private Task? _responsesViewerPageLoadTask;
+        private MarkdownViewerAssetServer? _responsesAssetServer;
         private EnvironmentCapabilityReport _environmentCapabilityReport = new EnvironmentCapabilityReport(string.Empty, null);
 
         private bool _bindingMarkdownThemeOptions;
@@ -1950,12 +1951,12 @@ The assistant wants to replace text in an existing file.
 
         private List<MarkdownThemeOption> LoadMarkdownThemeOptions()
         {
-            string stylesPath = System.IO.Path.Combine(GetMarkdownViewerAssetsOutputPath(), "styles");
+            string stylesPath = System.IO.Path.Combine(GetMarkdownViewerAssetsOutputPath(), "Styles");
 
             if (!Directory.Exists(stylesPath))
                 return new List<MarkdownThemeOption>();
 
-            var files = Directory.GetFiles(stylesPath, "*.min.css", SearchOption.TopDirectoryOnly);
+            var files = Directory.GetFiles(stylesPath, "*.css", SearchOption.TopDirectoryOnly);
 
             return files
                 .Select(path =>
@@ -1966,7 +1967,7 @@ The assistant wants to replace text in an existing file.
                     {
                         FileName = fileName,
                         DisplayName = FormatMarkdownThemeDisplayName(fileName),
-                        RelativeHref = "styles/" + fileName
+                        RelativeHref = "Styles/" + fileName
                     };
                 })
                 .OrderBy(t => t.DisplayName, StringComparer.CurrentCultureIgnoreCase)
@@ -1988,7 +1989,7 @@ The assistant wants to replace text in an existing file.
         private MarkdownThemeOption GetDefaultMarkdownThemeOption(List<MarkdownThemeOption> options)
         {
             var github = options.FirstOrDefault(t =>
-                t.FileName.Equals("github.min.css", StringComparison.OrdinalIgnoreCase));
+                t.FileName.Equals("github.css", StringComparison.OrdinalIgnoreCase));
 
             return github ?? options.FirstOrDefault();
         }
@@ -2084,7 +2085,8 @@ The assistant wants to replace text in an existing file.
                 throw new FileNotFoundException("Markdown viewer template was not found.", templatePath);
             }
 
-            wvResponsesResponse.Navigate(new Uri(Path.GetFullPath(templatePath)));
+            _responsesAssetServer ??= MarkdownViewerAssetServer.Start(GetMarkdownViewerAssetsOutputPath());
+            wvResponsesResponse.Navigate(_responsesAssetServer.TemplateUri);
 
             if (!await tcs.Task)
                 throw new InvalidOperationException("The Markdown viewer page could not be loaded.");
@@ -2093,6 +2095,20 @@ The assistant wants to replace text in an existing file.
                 "window.chrome = window.chrome || {}; window.chrome.webview = window.chrome.webview || {}; window.chrome.webview.postMessage = window.invokeCSharpAction;");
 
             _responsesViewerPageLoaded = true;
+            await ApplySelectedPageThemeAsync();
+            await ApplySelectedMarkdownThemeAsync();
+        }
+        private async void MainWindow_Closed(object? sender, EventArgs e)
+        {
+            if (_responsesAssetServer is not null)
+            {
+                await _responsesAssetServer.DisposeAsync();
+                _responsesAssetServer = null;
+            }
+        }
+        private void ResponsesWebView_EnvironmentRequested(object? sender, WebViewEnvironmentRequestedEventArgs e)
+        {
+            e.EnableDevTools = true;
         }
         private void ResponsesWebView_NavigationStarted(object? sender, WebViewNavigationStartingEventArgs e)
         {
@@ -2100,10 +2116,12 @@ The assistant wants to replace text in an existing file.
             if (uri is null)
                 return;
 
+            bool isResponsesAsset = _responsesAssetServer?.BaseUri.IsBaseOf(uri) == true;
             bool isExternalLink =
-                uri.Scheme.Equals(Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase) ||
-                uri.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase) ||
-                uri.Scheme.Equals("mailto", StringComparison.OrdinalIgnoreCase);
+                !isResponsesAsset &&
+                (uri.Scheme.Equals(Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase) ||
+                 uri.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase) ||
+                 uri.Scheme.Equals("mailto", StringComparison.OrdinalIgnoreCase));
 
             if (!isExternalLink)
             {
@@ -2166,7 +2184,7 @@ The assistant wants to replace text in an existing file.
                 string message = e.Body;
                 if (string.IsNullOrWhiteSpace(message))
                     return;
-
+                System.Diagnostics.Debug.WriteLine($"WebView message: {message}");
                 const string prefix = "copy-code:";
                 if (!message.StartsWith(prefix, StringComparison.Ordinal))
                     return;
@@ -2243,9 +2261,28 @@ The assistant wants to replace text in an existing file.
 
             await InvokeResponsesScriptAsync(
                 $"window.markdownViewer.setHighlightTheme({hrefArgument});");
+            string diagnostic = await wvResponsesResponse.InvokeScript("""
+            JSON.stringify((() => {
+                const link = document.getElementById("highlight-theme");
+                const block = document.querySelector("#markdown-root pre > code");
+                const token = block?.querySelector("span[class^='hljs-']");
 
-            /*await wvResponsesResponse.InvokeScript(
-                "window.markdownViewer.refreshHighlighting();");*/
+                return {
+                    href: link?.href ?? null,
+                    sheetLoaded: !!link?.sheet,
+                    codeBlockCount: document.querySelectorAll("#markdown-root pre > code").length,
+                    highlighted: block?.classList.contains("hljs") ?? false,
+                    tokenClass: token?.className ?? null,
+                    tokenColor: token ? getComputedStyle(token).color : null
+                };
+            })())
+            """);
+            System.Diagnostics.Debug.WriteLine($"WebView highlight diagnostic: {diagnostic}");
+            /// Refresh the syntax highlighting after changing the theme
+            /// This was necessary because the highlight.js library does not automatically re-apply styles when the theme is changed.
+            /// this was commented out, for some reason so we will re-enable it to see if it fixes the issue with the syntax highlighting not updating when changing themes.
+            await wvResponsesResponse.InvokeScript(
+                "window.markdownViewer.refreshHighlighting();");
         }
         private async void cmbResponsesMarkdownTheme_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
