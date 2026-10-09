@@ -123,7 +123,8 @@
                                 CornerRadius="4"
                                 Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"/>
+                                              VerticalAlignment="Center"
+                                              Content="{TemplateBinding Content}"/>
                         </Border>
                     </ControlTemplate>
                 </Setter.Value>
@@ -1059,10 +1060,10 @@
                                                                            Text="{Binding ArgumentsJson, Mode=OneWay}" />
 
                                                                 <TextBlock Margin="0,4,0,0"
-                       FontSize="11"
-                       Foreground="SlateGray"
-                       TextWrapping="Wrap"
-                       Text="{Binding ResultJson, Mode=OneWay}" />
+                                                                           FontSize="11"
+                                                                           Foreground="SlateGray"
+                                                                           TextWrapping="Wrap"
+                                                                           Text="{Binding ResultJson, Mode=OneWay}" />
                                                             </StackPanel>
                                                         </Border>
                                                     </DataTemplate>
@@ -1186,11 +1187,12 @@
                                                 Binding="{Binding Title}"
                                                 Width="*"/>
 
-                            <DataGridTemplateColumn Width="50" Header="Del" IsReadOnly="True">
+                            <DataGridTemplateColumn Width="Auto" Header="Del" IsReadOnly="True">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Content="🗑"
-                                                Width="28"
+                                        <Button Content="🗑" 
+                                                Foreground="Red"
+                                                Width="50"
                                                 Height="28"
                                                 FontSize="15"
                                                 Focusable="False"
