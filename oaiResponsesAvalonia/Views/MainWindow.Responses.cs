@@ -1445,7 +1445,8 @@ namespace oaiResponsesAvalonia.Views
         private async void btnDeveloperEnvironmentReport_Click(object? sender, RoutedEventArgs e)
         {
             RefreshEnvironmentCapabilityReport();
-            await _dialogs.ShowMessageAsync(this, "Environment capabilities", _environmentCapabilityReport.Text);
+            var reportWindow = new EnvironmentReportWindow(_environmentCapabilityReport);
+            await reportWindow.ShowDialog(this);
         }
 
         private void RefreshEnvironmentCapabilityReport()
