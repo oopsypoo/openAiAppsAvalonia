@@ -1,5 +1,12 @@
 # openAiAppsAvalonia
 
+**Renamed project - 2026-10-10**
+* created new project-target(avalonia): oaiResponsesAvalonia
+* first "good" build
+* fixed some bugs
+* (GitHub copilot did all of the conversion from wpf->avalonia(used/added avalonioa MCP-server)(gpt-6-luna))
+* still fixing bugs though
+
 **Project goal - 2026-10-07**
 
 * Rewrite the application from WPF to Avalonia, using Avalonia-style UI and application structure rather than carrying the WPF design forward unchanged.
