@@ -2091,7 +2091,7 @@ The assistant wants to replace text in an existing file.
             if (!await tcs.Task)
                 throw new InvalidOperationException("The Markdown viewer page could not be loaded.");
 
-            await wvResponsesResponse.InvokeScript(
+            await InvokeResponsesScriptWithStringResultAsync(
                 "window.chrome = window.chrome || {}; window.chrome.webview = window.chrome.webview || {}; window.chrome.webview.postMessage = window.invokeCSharpAction;");
 
             _responsesViewerPageLoaded = true;
@@ -2204,13 +2204,18 @@ The assistant wants to replace text in an existing file.
             }
         }
 
+        private Task<string?> InvokeResponsesScriptWithStringResultAsync(string script)
+        {
+            return wvResponsesResponse.InvokeScript($"{script}\n; 'ok';");
+        }
+
         private async Task InvokeResponsesScriptAsync(string script)
         {
             await EnsureResponsesViewerPageLoadedAsync();
 
             try
             {
-                await wvResponsesResponse.InvokeScript(script);
+                await InvokeResponsesScriptWithStringResultAsync(script);
             }
             catch (InvalidOperationException ex) when (
                 ex.Message.Contains("Unable to invoke script before any page was loaded", StringComparison.Ordinal))
@@ -2222,25 +2227,33 @@ The assistant wants to replace text in an existing file.
                     _responsesViewerPageLoadTask = null;
 
                 await EnsureResponsesViewerPageLoadedAsync();
-                await wvResponsesResponse.InvokeScript(script);
+                await InvokeResponsesScriptWithStringResultAsync(script);
             }
         }
 
         private async Task RenderResponsesMarkdownAsync(string markdown)
         {
-            await EnsureResponsesWebViewInitializedAsync();
-            await EnsureResponsesViewerPageLoadedAsync();
+            try
+            {
+                await EnsureResponsesWebViewInitializedAsync();
+                await EnsureResponsesViewerPageLoadedAsync();
 
-            string htmlBody = ConvertMarkdownToHtmlBody(markdown);
-            string jsArgument = System.Text.Json.JsonSerializer.Serialize(htmlBody);
+                string htmlBody = ConvertMarkdownToHtmlBody(markdown);
+                string jsArgument = System.Text.Json.JsonSerializer.Serialize(htmlBody);
 
-            await InvokeResponsesScriptAsync(
-                $"window.markdownViewer.setContent({jsArgument});");
+                await InvokeResponsesScriptAsync(
+                    $"window.markdownViewer.setContent({jsArgument});");
 
-            await ApplySelectedPageThemeAsync();
-            await ApplySelectedMarkdownThemeAsync();
-            // Scroll to top after rendering new content
-            await InvokeResponsesScriptAsync("window.scrollTo(0, 0);");
+                await ApplySelectedPageThemeAsync();
+                await ApplySelectedMarkdownThemeAsync();
+                // Scroll to top after rendering new content
+                await InvokeResponsesScriptAsync("window.scrollTo(0, 0);");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to render response markdown: {ex}");
+                _appStatus.Set("Response preview rendering failed.");
+            }
         }
         private async Task ApplySelectedPageThemeAsync()
         {
@@ -2281,7 +2294,7 @@ The assistant wants to replace text in an existing file.
             /// Refresh the syntax highlighting after changing the theme
             /// This was necessary because the highlight.js library does not automatically re-apply styles when the theme is changed.
             /// this was commented out, for some reason so we will re-enable it to see if it fixes the issue with the syntax highlighting not updating when changing themes.
-            await wvResponsesResponse.InvokeScript(
+            await InvokeResponsesScriptWithStringResultAsync(
                 "window.markdownViewer.refreshHighlighting();");
         }
         private async void cmbResponsesMarkdownTheme_SelectionChanged(object sender, SelectionChangedEventArgs e)
