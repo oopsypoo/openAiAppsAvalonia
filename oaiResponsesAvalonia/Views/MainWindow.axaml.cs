@@ -35,6 +35,7 @@ public partial class MainWindow : Window
     private int _ellipsisCounter;
     private AppStatus _appStatus = null!;
     private Responses _responsesClient = null!;
+    private bool _responsesTabNeedsRefresh;
     private string _responsesImagePath = string.Empty;
     private string _responsesPreviewImagePath = string.Empty;
     private LogRowViewModel? _lastSelectedLogRow;
@@ -321,10 +322,35 @@ public partial class MainWindow : Window
 
     private void tabMain_SelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
-        if (!ReferenceEquals(e.Source, tabMain) || tabMain.SelectedItem != tabLogs)
+        if (!ReferenceEquals(e.Source, tabMain))
             return;
 
-        RefreshLogsTab();
+        if (tabMain.SelectedItem == tabLogs)
+        {
+            _responsesTabNeedsRefresh = true;
+            RefreshLogsTab();
+            return;
+        }
+
+        if (tabMain.SelectedItem == tpResponses && _responsesTabNeedsRefresh)
+        {
+            _responsesTabNeedsRefresh = false;
+            Dispatcher.UIThread.Post(() => _ = RefreshSelectedResponsePreviewAsync());
+        }
+    }
+
+    private async Task RefreshSelectedResponsePreviewAsync()
+    {
+        if (tabMain.SelectedItem != tpResponses)
+            return;
+
+        var selectedTurn = ResponsesState.SelectedTurn ?? lstResponsesTurns.SelectedItem as ChatMessage;
+        string markdown = selectedTurn is not null &&
+            string.Equals(selectedTurn.Role, "assistant", StringComparison.OrdinalIgnoreCase)
+                ? selectedTurn.Content
+                : string.Empty;
+
+        await RenderResponsesMarkdownAsync(markdown);
     }
 
     private async Task ClearDeletedSessionFromUi(ChatSession session)
