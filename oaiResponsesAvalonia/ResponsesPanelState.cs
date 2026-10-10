@@ -196,8 +196,11 @@ namespace oaiResponsesAvalonia
                 if (_developerAllowReadOnlyOnly == value) return;
                 _developerAllowReadOnlyOnly = value;
                 OnPropertyChanged(nameof(DeveloperAllowReadOnlyOnly));
+                OnPropertyChanged(nameof(DeveloperWriteFunctionsEnabled));
             }
         }
+
+        public bool DeveloperWriteFunctionsEnabled => !DeveloperAllowReadOnlyOnly;
 
         private bool _developerRequireWriteConfirmation = true;
         public bool DeveloperRequireWriteConfirmation

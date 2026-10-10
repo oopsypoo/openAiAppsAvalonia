@@ -878,22 +878,22 @@
                                                       <CheckBox Content="Create .NET solution and project"
                                                                ToolTip.Tip="Creates a constrained .NET solution and project in one new child folder below the workspace root, then switches the workspace root to that new solution folder."
                                                               IsChecked="{Binding #RootWindow.ResponsesState.DeveloperToolCreateDotNetSolution, Mode=TwoWay}"
-                                                                IsEnabled="{Binding #RootWindow.ResponsesState.DeveloperAllowReadOnlyOnly}" />
+                                                               IsEnabled="{Binding #RootWindow.ResponsesState.DeveloperWriteFunctionsEnabled}" />
                                                     <CheckBox Content="Build, clean, or rebuild .NET project or solution"
                                                                ToolTip.Tip="Enables dotnet build, dotnet clean, and clean-then-build for a selected .csproj, .sln, or .slnx file."
                                                               IsChecked="{Binding #RootWindow.ResponsesState.DeveloperToolBuildDotNetProject, Mode=TwoWay}"
-                                                                IsEnabled="{Binding #RootWindow.ResponsesState.DeveloperAllowReadOnlyOnly}" />
+                                                               IsEnabled="{Binding #RootWindow.ResponsesState.DeveloperWriteFunctionsEnabled}" />
                                                     <CheckBox Content="Run .NET project (Debug)"
                                                                ToolTip.Tip="Runs a built .NET project in Debug configuration and lets the AI inspect or stop the developer-launched process."
                                                               IsChecked="{Binding #RootWindow.ResponsesState.DeveloperToolRunDotNetProject, Mode=TwoWay}"
-                                                               IsEnabled="{Binding #RootWindow.ResponsesState.DeveloperAllowReadOnlyOnly}"/>
+                                                               IsEnabled="{Binding #RootWindow.ResponsesState.DeveloperWriteFunctionsEnabled}"/>
 
                                                     <CheckBox Content="Write project file"
                                                               IsChecked="{Binding #RootWindow.ResponsesState.DeveloperToolWriteProjectFile, Mode=TwoWay}"
-                                                               IsEnabled="{Binding #RootWindow.ResponsesState.DeveloperAllowReadOnlyOnly}"/>
+                                                               IsEnabled="{Binding #RootWindow.ResponsesState.DeveloperWriteFunctionsEnabled}"/>
                                                     <CheckBox Content="Replace in project file"
                                                               IsChecked="{Binding #RootWindow.ResponsesState.DeveloperToolReplaceInProjectFile, Mode=TwoWay}"
-                                                               IsEnabled="{Binding #RootWindow.ResponsesState.DeveloperAllowReadOnlyOnly}"/>
+                                                               IsEnabled="{Binding #RootWindow.ResponsesState.DeveloperWriteFunctionsEnabled}"/>
                                                 </StackPanel>
 
                                                 <TextBlock Grid.Row="6"
