@@ -9,6 +9,8 @@
         x:DataType="vm:MainViewModel"
         x:CompileBindings="False"
         Icon="/Assets/avalonia-logo.ico"
+        Width="1024"
+        Height="768"
         Title="oaiResponsesAvalonia">
 
     <Design.DataContext>

@@ -3,6 +3,8 @@
         xmlns:settings="using:oaiResponsesAvalonia"
         x:Class="oaiResponsesAvalonia.Views.SettingsWindow"
         x:DataType="settings:AppSettings"
+        Width="530"
+        Height="230"
         Title="SettingsWindow">
   <Grid Margin="20"
         RowDefinitions="Auto,*,Auto"
