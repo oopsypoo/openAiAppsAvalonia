@@ -2052,7 +2052,17 @@ The assistant wants to replace text in an existing file.
         private async Task EnsureResponsesViewerPageLoadedAsync()
         {
             if (_responsesViewerPageLoaded)
-                return;
+            {
+                if (_responsesViewerPageLoadTask is { IsCompleted: false } ||
+                    await IsResponsesViewerScriptReadyAsync())
+                {
+                    return;
+                }
+
+                _responsesViewerPageLoaded = false;
+                if (_responsesViewerPageLoadTask?.IsCompleted == true)
+                    _responsesViewerPageLoadTask = null;
+            }
 
             Task loadTask = _responsesViewerPageLoadTask ??= LoadResponsesViewerPageAsync();
 
@@ -2092,6 +2102,8 @@ The assistant wants to replace text in an existing file.
             if (!await tcs.Task)
                 throw new InvalidOperationException("The Markdown viewer page could not be loaded.");
 
+            await WaitForResponsesViewerScriptAsync();
+
             await InvokeResponsesScriptWithStringResultAsync(
                 "window.chrome = window.chrome || {}; window.chrome.webview = window.chrome.webview || {}; window.chrome.webview.postMessage = window.invokeCSharpAction;");
 
@@ -2099,6 +2111,34 @@ The assistant wants to replace text in an existing file.
             await ApplySelectedPageThemeAsync();
             await ApplySelectedMarkdownThemeAsync();
         }
+
+        private async Task WaitForResponsesViewerScriptAsync()
+        {
+            for (int attempt = 0; attempt < 50; attempt++)
+            {
+                if (await IsResponsesViewerScriptReadyAsync())
+                    return;
+
+                await Task.Delay(100);
+            }
+
+            throw new InvalidOperationException("The Markdown viewer script did not initialize after navigation completed.");
+        }
+
+        private async Task<bool> IsResponsesViewerScriptReadyAsync()
+        {
+            try
+            {
+                string? result = await wvResponsesResponse.InvokeScript("Boolean(window.markdownViewer && typeof window.markdownViewer.setContent === 'function' && typeof window.markdownViewer.setPageTheme === 'function' && typeof window.markdownViewer.setHighlightTheme === 'function') ? 1 : 0;");
+                return string.Equals(result?.Trim().Trim('"'), "1", StringComparison.Ordinal);
+            }
+            catch (InvalidOperationException ex) when (
+                ex.Message.Contains("Unable to invoke script before any page was loaded", StringComparison.Ordinal))
+            {
+                return false;
+            }
+        }
+
         private async void MainWindow_Closed(object? sender, EventArgs e)
         {
             if (_responsesAssetServer is not null)
