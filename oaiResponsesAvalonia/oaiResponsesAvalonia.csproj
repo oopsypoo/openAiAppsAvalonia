@@ -8,7 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Models\" />
     <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
 
@@ -22,6 +21,10 @@
     <AvaloniaResource Remove="Assets\MarkdownViewer\viewer-codeblock-fixes.css" />
     <AvaloniaResource Remove="Assets\MarkdownViewer\highlight.min.js" />
     <AvaloniaResource Remove="Assets\MarkdownViewer\Styles\**\*" />
+    <AvaloniaXaml Remove="Models\**" />
+    <Compile Remove="Models\**" />
+    <EmbeddedResource Remove="Models\**" />
+    <None Remove="Models\**" />
   </ItemGroup>
 
   <ItemGroup>

@@ -422,7 +422,7 @@ public partial class MainWindow : Window
 
     private async void menuAbout_Click(object? sender, RoutedEventArgs e)
     {
-        await _dialogs.ShowMessageAsync(this, "About", "OpenAI Responses Avalonia", DialogSeverity.Information);
+        await _dialogs.ShowModalAsync(this, new About());
     }
 
     private void menuExit_Click(object? sender, RoutedEventArgs e) => Close();

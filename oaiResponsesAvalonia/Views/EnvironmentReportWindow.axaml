@@ -6,6 +6,41 @@
         Width="760"
         Height="400"
         WindowStartupLocation="CenterOwner">
+
+        <Window.Resources>
+            <!-- Colors -->
+            <SolidColorBrush x:Key="TreeConnectorBrush" Color="#6E737A"/>
+            <SolidColorBrush x:Key="TreeHoverBrush" Color="#18FFFFFF"/>
+            <SolidColorBrush x:Key="TreeSelectedBrush" Color="#FF2B579A"/>
+        </Window.Resources>
+
+        <Window.Styles>
+        <!-- Keep Avalonia's built-in TreeViewItem template. -->
+            <Style Selector="TreeViewItem">
+                <Setter Property="Padding" Value="4,2" />
+                <Setter Property="MinHeight" Value="24" />
+            </Style>
+
+            <!-- Nautilus-like subtle hover and blue selection. -->
+            <Style Selector="TreeViewItem:pointerover /template/ ContentPresenter#PART_HeaderPresenter">
+                <Setter Property="Background" Value="#FFE8EDF3" />
+                <Setter Property="CornerRadius" Value="3" />
+            </Style>
+
+            <Style Selector="TreeViewItem:selected /template/ ContentPresenter#PART_HeaderPresenter">
+                <Setter Property="Background" Value="#FF3584E4" />
+                <Setter Property="Foreground" Value="White" />
+                <Setter Property="CornerRadius" Value="3" />
+            </Style>
+
+            <!-- No expand arrow for leaf nodes. -->
+            <Style Selector="TreeViewItem:empty /template/ ToggleButton#PART_ExpandCollapseChevron">
+                <Setter Property="IsVisible" Value="False" />
+            </Style>
+        </Window.Styles>
+
+        
+    
     <Grid Margin="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -35,27 +70,20 @@
                        FontWeight="SemiBold"
                        Text="Workspace file tree (folders marked as skipped are not scanned)" />
             <TreeView x:Name="WorkspaceTreeView"
-                      Height="320"
-                      BorderThickness="1"
-                      Background="WhiteSmoke"
-                      BorderBrush="Gray"
-                      ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                      ScrollViewer.VerticalScrollBarVisibility="Auto">
-                <TreeView.DataTemplates>
-                    <TreeDataTemplate DataType="services:WorkspaceTreeNode"
-                                      x:DataType="services:WorkspaceTreeNode"
-                                      ItemsSource="{Binding Children}">
-                        <Border Background="GhostWhite"
-                                HorizontalAlignment="Left"
-                                BorderBrush="Gray"
-                                BorderThickness="1"
-                                CornerRadius="2 2 2 2"
-                                BoxShadow="2 2 Gray"
-                                Padding="1">
-                            <TextBlock Text="{Binding Name}" />
-                        </Border>
-                    </TreeDataTemplate>
-                </TreeView.DataTemplates>
+                    Height="320"
+                    BorderThickness="1"
+                    Background="#FFFAFAFA"
+                    BorderBrush="#FFD0D7DE"
+                    ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                    ScrollViewer.VerticalScrollBarVisibility="Auto">
+                    <TreeView.DataTemplates>
+                        <TreeDataTemplate DataType="services:WorkspaceTreeNode"
+                                            x:DataType="services:WorkspaceTreeNode"
+                                            ItemsSource="{Binding Children}">
+                            <TextBlock Text="{Binding Name}"
+                                        VerticalAlignment="Center" />
+                        </TreeDataTemplate>
+                    </TreeView.DataTemplates>
             </TreeView>
         </StackPanel>
         <Button Grid.Row="3"
