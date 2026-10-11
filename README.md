@@ -1,5 +1,12 @@
 # openAiAppsAvalonia
 
+**First good crossplatform (Linux/Windows) build that works - 2026-10-11**
+* Most problematic was NativeWebViewer
+ - updated in windows but not in Linux when changing tabs
+ - highlighter.js was not good. Get new source
+ - works on both platforms
+ - look and feel is the same
+
 **Renamed project - 2026-10-10**
 * created new project-target(avalonia): oaiResponsesAvalonia
 * first "good" build
